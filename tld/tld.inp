@@ -1,0 +1,58 @@
+* ..+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+TITLE
+FLUKA Course Exercise
+*
+* use names everywhere and free format for geometry
+DEFAULTS                                                              PRECISIO
+*
+* beam definitions
+FREE
+BEAM           %(E)s      -0.0       0.0       0.3175       0.3175       1.0 NEUTRON
+FIXED
+BEAMPOS          0.0       0.0     -100.       0.0       0.0
+*
+* Geometry
+* --------
+GEOBEGIN                                                              COMBNAME
+    0    0             Cylindrical Target
+SPH VOIDBALL   0.0 0.0 0.0 1000.
+* ..+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+RPP TARGET  -0.15875   0.15875  -0.15875   0.15875  -0.04445   0.04445
+END
+*
+* Regions
+* -------
+*
+* Blackhole
+BLKHOLE      5 -VOIDBALL
+* Void
+VOID         5 +VOIDBALL -TARGET
+* Target
+TARGET       5 +TARGET
+END
+GEOEND
+MATERIAL          3.        7.      .534                              Lithium7
+MATERIAL          3.        6.      .534                              Lithium6
+MATERIAL          9.18.9984032  0.001696                              FLUORINE
+* 185 Lithium Fluoride
+*
+MATERIAL                           2.635                              Li6F
+* 185 Lithium Fluoride
+*
+MATERIAL                           2.635                              Li7F
+LOW-MAT     Lithium6        3.        6.      296.                    LITHIU-6
+LOW-MAT     Lithium7        3.        7.      296.                    LITHIU-7
+COMPOUND         1.0  Lithium6       1.0  FLUORINE                    Li6F
+COMPOUND         1.0  Lithium7       1.0  FLUORINE                    Li7F
+*
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM      VOID
+ASSIGNMA        Li%(LiMass)sF    TARGET
+USRBIN           10.   NEUTRON      -22.        4.        4.        4.overview
+USRBIN           -4.       -4.       -4.       80.       80.       80.&
+USRBIN           12.    ENERGY       21.    TARGET                    tld
+USRBIN        TARGET                            1.        1.        1.&
+*
+RANDOMIZ         1.0
+START         5000.0                                     0.0
+STOP

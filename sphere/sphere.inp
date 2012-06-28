@@ -1,0 +1,52 @@
+* ..+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+TITLE
+FLUKA Course Exercise
+*
+* use names everywhere and free format for geometry
+DEFAULTS                                                              NEW-DEFA
+*
+* beam definitions
+BEAM            -3.5 -0.082425      -1.7       0.0       0.0       1.0PROTON
+BEAMPOS          0.0       0.0      -0.1       0.0       0.0
+*
+* Geometry
+* --------
+GEOBEGIN                                                              COMBNAME
+    0    0             Cylindrical Target
+SPH MODERATORBALL 0.0 0.0 0.0 30.
+SPH TARGETBALL 0.0 0.0 0.0 1.
+SPH VOIDBALL   0.0 0.0 0.0 1000.
+END
+*
+* Regions
+* -------
+*
+* Blackhole
+BLKHOLE      5 -VOIDBALL
+* Void
+VOID         5 +VOIDBALL -MODERATORBALL
+* Target
+TARGET       5 +TARGETBALL
+MODERATOR    5 +MODERATORBALL -TARGETBALL
+END
+GEOEND
+MATERIAL          3.        7.      .534                              Lithium 7
+MATERIAL          3.        6.      .534                              Lithium 6
+MATERIAL          9.18.9984032  0.001696                              FLUORINE
+* 185 Lithium Fluoride
+*
+MATERIAL                           2.635                              Li6F
+* 185 Lithium Fluoride
+*
+MATERIAL                           2.635                              Li7F
+COMPOUND         1.0 Lithium 6       1.0  FLUORINE                    Li6F
+COMPOUND         1.0 Lithium 7       1.0  FLUORINE                    Li7F
+*
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM      VOID
+ASSIGNMA    POLYETHY MODERATOR
+ASSIGNMA        Li7F    TARGET
+*
+RANDOMIZ         1.0
+START         5000.0                                     0.0
+STOP

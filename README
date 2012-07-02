@@ -1,4 +1,4 @@
 radiationCalculations
 =====================
 
-Neutron spectrum measurement using Bonner spheres, for the CMS cavern at CERN.
+Neutron spectrum measurement using Bonner spheres, for the CMS cavern at CERN. Python, numpy, scipy, python-matplotlib and fluka is needed to run this. File main.py in each folder both does calculations and processes the result. python main.py should be all that is needed to reproduce the results.

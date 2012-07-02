@@ -1,8 +1,8 @@
 import os
+import time
+def getRate(E,LiMass,n=1):
 
-def getRate(E,LiMass):
-
-	replacements={'E':str(E),'LiMass':str(LiMass)}
+	replacements={'E':str(E),'LiMass':str(LiMass),'seed':str(round(time.time()*100))[6:]}
 
 	inFile=open('tld.inp','r')
 	os.system('mkdir run')
@@ -11,29 +11,36 @@ def getRate(E,LiMass):
 	inFile.close()
 	processedFile.close()
 	
-	os.system('cd run; rfluka -N0 -M1 tld')
-	
-	resultFile=open('run/tld001_fort.21','r')
-	for i in range(16):
-		resultFile.readline()
-	result=float(resultFile.readline())
-	resultFile.close()
+	os.system('cd run; rfluka -N0 -M'+str(n)+' tld')
+	result=[]
+	for i in range(n):
+		num=str(i+1)
+		while len(num)<3: num='0'+num
+		resultFile=open('run/tld'+num+'_fort.21','r')
+		for j in range(16):
+			resultFile.readline()
+		result.append(float(resultFile.readline()))
+		resultFile.close()
+		
 	os.system('rm -r run')
 	return result
 	
-def simulate(name='default'):
-	E=1e-9
-	rate6=[]
-	rate7=[]
-	Es=[]
+def simulate(name='default',n=1):
+	os.system('mkdir -p results')
+	Estart=1e-9
+	Eend=1e4
 	resultFile=open('results/'+name,'w')
 	resultFile.write('E\trate6\trate7')
 	resultFile.close()
-	for i in range(100):
-		Es.append(E)
-		rate6.append(getRate(E,6))
-		rate7.append(getRate(E,7))
+	E=Estart
+	while E<Eend:
 		resultFile=open('results/'+name,'a')
-		resultFile.write('\n'+str(E)+'\t'+str(rate6[-1])+'\t'+str(rate7[-1]))
+		rateCols=''
+		for r in getRate(E,6,n)+getRate(E,7,n):
+			rateCols+='\t'+str(r)
+		resultFile.write('\n'+str(E)+rateCols)
 		resultFile.close()
 		E*=1.3
+
+if __name__=="__main__":
+    simulate()

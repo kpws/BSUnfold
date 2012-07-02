@@ -6,47 +6,38 @@ FLUKA Course Exercise
 DEFAULTS                                                              NEW-DEFA
 *
 * beam definitions
-BEAM            -3.5 -0.082425      -1.7       0.0       0.0       1.0PROTON
-BEAMPOS          0.0       0.0      -0.1       0.0       0.0
+FREE
+BEAM           %(E)s      -0.0       0.0       %(r)s       %(r)s       1.0 NEUTRON
+FIXED
+BEAMPOS          0.0       0.0     -100.       0.0       0.0
 *
 * Geometry
 * --------
 GEOBEGIN                                                              COMBNAME
     0    0             Cylindrical Target
-SPH MODERATORBALL 0.0 0.0 0.0 30.
-SPH TARGETBALL 0.0 0.0 0.0 1.
-SPH VOIDBALL   0.0 0.0 0.0 1000.
+SPH B_MODERATORBALL 0.0 0.0 0.0 %(r)s
+SPH B_VOIDBALL   0.0 0.0 0.0 1000
+#include ../../common/TLDBody.inp
 END
-*
-* Regions
-* -------
-*
-* Blackhole
-BLKHOLE      5 -VOIDBALL
-* Void
-VOID         5 +VOIDBALL -MODERATORBALL
-* Target
-TARGET       5 +TARGETBALL
-MODERATOR    5 +MODERATORBALL -TARGETBALL
+
+R_BLKHOLE    5 -B_VOIDBALL
+R_VOID       5 +B_VOIDBALL -B_MODERATORBALL
+R_TLD        5 +B_TLD
+R_MODERATOR  5 +B_MODERATORBALL -B_TLD
 END
 GEOEND
-MATERIAL          3.        7.      .534                              Lithium 7
-MATERIAL          3.        6.      .534                              Lithium 6
-MATERIAL          9.18.9984032  0.001696                              FLUORINE
-* 185 Lithium Fluoride
+#include ../../common/LiF.inp
 *
-MATERIAL                           2.635                              Li6F
-* 185 Lithium Fluoride
+FREE
+ASSIGNMA    BLCKHOLE   R_BLKHOLE
+ASSIGNMA      VACUUM      R_VOID
+ASSIGNMA    POLYETHY R_MODERATOR
+ASSIGNMA        Li7F     R_TLD
+FIXED
 *
-MATERIAL                           2.635                              Li7F
-COMPOUND         1.0 Lithium 6       1.0  FLUORINE                    Li6F
-COMPOUND         1.0 Lithium 7       1.0  FLUORINE                    Li7F
-*
-ASSIGNMA    BLCKHOLE   BLKHOLE
-ASSIGNMA      VACUUM      VOID
-ASSIGNMA    POLYETHY MODERATOR
-ASSIGNMA        Li7F    TARGET
-*
-RANDOMIZ         1.0
-START         5000.0                                     0.0
+#include ../../common/TLDScoring.inp
+FREE
+RANDOMIZ         1.0, %(seed)s
+FIXED
+START        50000.0                                     0.0
 STOP

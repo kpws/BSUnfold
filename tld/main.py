@@ -1,5 +1,5 @@
-import simulate
-import plot
+from simulate import *
+from plot import *
 
-simulate()
+simulate(n=7)
 plot()

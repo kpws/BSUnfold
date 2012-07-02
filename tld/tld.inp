@@ -48,11 +48,13 @@ COMPOUND         1.0  Lithium7       1.0  FLUORINE                    Li7F
 ASSIGNMA    BLCKHOLE   BLKHOLE
 ASSIGNMA      VACUUM      VOID
 ASSIGNMA        Li%(LiMass)sF    TARGET
-USRBIN           10.   NEUTRON      -22.        4.        4.        4.overview
-USRBIN           -4.       -4.       -4.       80.       80.       80.&
-USRBIN           12.    ENERGY       21.    TARGET                    tld
+*USRBIN           10.   NEUTRON      -22.        4.        4.        4.overview
+*USRBIN           -4.       -4.       -4.       80.       80.       80.&
+USRBIN           12.    ENERGY       21.    TARGET                     
 USRBIN        TARGET                            1.        1.        1.&
 *
-RANDOMIZ         1.0
-START         5000.0                                     0.0
+FREE
+RANDOMIZ         1.0, %(seed)s
+FIXED
+START      1000000.0                                     0.0
 STOP

@@ -1,0 +1,11 @@
+MATERIAL          3.        7.      .534                              Lithium7
+MATERIAL          3.        6.      .534                              Lithium6
+MATERIAL          9.18.9984032  0.001696                              FLUORINE
+
+MATERIAL                           2.635                              Li6F
+MATERIAL                           2.635                              Li7F
+LOW-MAT     Lithium6        3.        6.      296.                    LITHIU-6
+LOW-MAT     Lithium7        3.        7.      296.                    LITHIU-7
+
+COMPOUND         1.0  Lithium6       1.0  FLUORINE                    Li6F
+COMPOUND         1.0  Lithium7       1.0  FLUORINE                    Li7F

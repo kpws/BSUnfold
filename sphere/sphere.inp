@@ -27,17 +27,18 @@ R_MODERATOR  5 +B_MODERATORBALL -B_TLD
 END
 GEOEND
 #include ../../common/LiF.inp
+#include ../../common/PET.inp
 *
 FREE
 ASSIGNMA    BLCKHOLE   R_BLKHOLE
 ASSIGNMA      VACUUM      R_VOID
-ASSIGNMA    POLYETHY R_MODERATOR
-ASSIGNMA        Li7F     R_TLD
+ASSIGNMA    PET R_MODERATOR
+ASSIGNMA        Li%(LiMass)sF     R_TLD
 FIXED
 *
 #include ../../common/TLDScoring.inp
 FREE
 RANDOMIZ         1.0, %(seed)s
 FIXED
-START        50000.0                                     0.0
+START       500000.0                                     0.0
 STOP

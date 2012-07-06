@@ -37,9 +37,10 @@ def plot(name='default'):
 	pl.hold(True)
 	nstd=3
 	pl.subplot(111, xscale="log", yscale="linear")
+	pl.title('Errorbars $\pm '+str(nstd)+'\sigma$')
 	for i in range(len(r)):
-		pl.errorbar(E, neutronRateMean[i], yerr=neutronRateStd[i]*nstd, fmt='r-',label='$\pm '+str(nstd)+'\sigma$, r='+str(r[i]))
-		pl.errorbar(E, rate7Mean[i], yerr=rate7Std[i]*nstd, fmt='g-',label='$\pm '+str(nstd)+'\sigma$, r='+str(r[i]))
+		pl.errorbar(E, neutronRateMean[i], yerr=neutronRateStd[i]*nstd, fmt='-',label='r='+str(r[i])+' cm')
+		#pl.errorbar(E, rate7Mean[i], yerr=rate7Std[i]*nstd, fmt='g-',label='$\pm '+str(nstd)+'\sigma$, r='+str(r[i]))
 	pl.legend(loc=2)
 	pl.xlabel('Beam energy [GeV]')
 	pl.ylabel('Energy / incidence in cm^2[GeV]')

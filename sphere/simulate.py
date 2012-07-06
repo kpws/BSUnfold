@@ -2,6 +2,7 @@ import os
 import time
 import numpy as np
 import threading
+import shutil
 from collections import deque
 
 expName='sphere'
@@ -11,7 +12,7 @@ def getRate(E,r,LiMass,n=1,source='',runId=''):
 	
 	if source=='':
 		inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
-	os.system('mkdir run'+runId)
+	os.mkdir('run'+runId)
 	
 	processedFile=open('run'+runId+'/'+expName+'.inp','w')
 	processedFile.write( source % replacements )
@@ -27,8 +28,16 @@ def getRate(E,r,LiMass,n=1,source='',runId=''):
 			resultFile.readline()
 		result.append(float(resultFile.readline()))
 		resultFile.close()
-		
-	os.system('rm -r run'+runId)
+	
+	hasDeletedFile = False
+	while hasDeletedFile == False:
+		try:
+			shutil.rmtree('run'+runId)
+			hasDeletedFile = True
+		except OSError:
+			print(runId+': All files not gone, waiting to redelete...')
+			time.sleep(0.5)
+			
 	return result
 
 class getRateThread(threading.Thread):
@@ -42,28 +51,31 @@ class getRateThread(threading.Thread):
 		threading.Thread.__init__(self)
 	def run(self):
 		self.result=getRate(self.E,self.r,self.LiMass,self.n,self.source,self.runId)
-	def getResult(self):
-		return self.result
-    	
-def simulate(name='default',n=2):
+
+def simulate(name='default',n=4,r=[],E=[]):
 	inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
 	os.system('mkdir -p results')
-	EStart=0.0255e-9
-	EEnd=1e-1
-	rStart=0.03
-	rEnd=0.5
+	if E==[]:
+		EStart=0.0255e-9 #thermal
+		EEnd=1e-1
+		E=[EStart]
+		while E[-1]<EEnd:
+			E.append(E[-1]*1.2)
+	if r==[]:
+		rStart=3.0
+		rEnd=50.0
+		r=[rStart]
+		while r[-1]<rEnd:
+			r.append(r[-1]*1.5)
+
 
 	threads= deque([])
-	E=EStart
-	while E<EEnd:
-		r=rStart
-		while r<rEnd:
-			threads.append(getRateThread(E,r,6,n,source,str(len(threads))))
-			threads.append(getRateThread(E,r,7,n,source,str(len(threads))))
-			r*=1.5
-		E*=1.5
+	for aE in E:
+		for ar in r:
+			threads.append(getRateThread(aE,ar,6,n,source,str(len(threads))))
+			threads.append(getRateThread(aE,ar,7,n,source,str(len(threads))))
 	
-	runNum=24;
+	runNum=13;
 	
 	for i in range(min(runNum,len(threads))):
 		threads[i].start()
@@ -71,7 +83,7 @@ def simulate(name='default',n=2):
 	resultFile=open('results/'+name,'w')
 	resultFile.write('E\tr\trate6\trate7')
 	resultFile.close()
-	while len(threads)!=0:
+	while len(threads)>0:
 		t=threads.popleft()   
 		t.join()
 		if len(threads)>=runNum:
@@ -81,7 +93,7 @@ def simulate(name='default',n=2):
 		if t.LiMass==6:
 			resultFile.write('\n'+str(t.E)+'\t'+str(t.r))
 		rateCols=''		
-		for col in t.getResult():
+		for col in t.result:
 			rateCols+='\t'+str(col)
 		resultFile.write(rateCols)
 		resultFile.close()

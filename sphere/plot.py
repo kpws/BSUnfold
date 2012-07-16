@@ -2,7 +2,7 @@ import pylab as pl
 import csv
 import numpy as np
 
-def plot(name='default'):
+def plot(name='default',ls='-'):
 	E=[]
 	allE=[]
 	allr=[]
@@ -35,17 +35,18 @@ def plot(name='default'):
 	neutronRateMean=rate6Mean-rate7Mean
 	neutronRateStd=np.sqrt(rate6Std**2+rate7Std**2)
 	pl.hold(True)
-	nstd=3
-	pl.subplot(111, xscale="log", yscale="linear")
-	pl.title('Errorbars $\pm '+str(nstd)+'\sigma$')
+	nstd=1
+	
+	#pl.title('Errorbars $\pm '+str(nstd)+'\sigma$')
 	for i in range(len(r)):
-		pl.errorbar(E, neutronRateMean[i], yerr=neutronRateStd[i]*nstd, fmt='-',label='r='+str(r[i])+' cm')
+		pl.errorbar(E, neutronRateMean[i], yerr=neutronRateStd[i]*nstd, fmt=ls,label='r='+str(r[i])+' cm')
 		#pl.errorbar(E, rate7Mean[i], yerr=rate7Std[i]*nstd, fmt='g-',label='$\pm '+str(nstd)+'\sigma$, r='+str(r[i]))
 	pl.legend(loc=2)
 	pl.xlabel('Beam energy [GeV]')
-	pl.ylabel('Energy / incidence in cm^2[GeV]')
-	pl.show()
-
+	pl.ylabel('Energy / (incidence per cm^2) [GeV]')
+	
 if __name__=="__main__":
-    plot()
+	pl.subplot(111, xscale="log", yscale="linear")
+	plot()
+	pl.show()
 

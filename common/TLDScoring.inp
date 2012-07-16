@@ -1,5 +1,5 @@
 FREE
 *name ,     1        ,         2,     3    ,   4     ,5  ,  6,  snum
-USRBIN,           12.,    ENERGY,       21.,    R_TLD,   ,   , tldEnergy
-USRBIN,        R_TLD,           ,          ,         ,1. , 1.,     1.&
+USRBIN,           12.,    ENERGY,       21.,    R_TARGET,   ,   , tldEnergy
+USRBIN,        R_TARGET,           ,          ,         ,1. , 1.,     1.&
 FIXED

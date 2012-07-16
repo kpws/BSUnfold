@@ -1,4 +1,10 @@
 *.py[co]
+*~
+*.log
+*.pdf
+*.swp
+*.backup
+*.aux
 
 # Packages
 *.egg

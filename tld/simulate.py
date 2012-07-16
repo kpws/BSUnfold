@@ -27,8 +27,8 @@ def getRate(E,LiMass,n=1):
 	
 def simulate(name='default',n=1):
 	os.system('mkdir -p results')
-	Estart=1e-9
-	Eend=1e4
+	Estart=1e-11
+	Eend=1e1
 	resultFile=open('results/'+name,'w')
 	resultFile.write('E\trate6\trate7')
 	resultFile.close()
@@ -43,4 +43,4 @@ def simulate(name='default',n=1):
 		E*=1.3
 
 if __name__=="__main__":
-    simulate()
+    simulate(n=3)

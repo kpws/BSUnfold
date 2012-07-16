@@ -4,55 +4,11 @@ import numpy as np
 import threading
 import shutil
 from collections import deque
+from getRate import *
 
 expName='sphere'
 
-def getRate(E,r,LiMass,n=1,source='',runId=''):
-	replacements={'E':str(E),'LiMass':str(LiMass),'r':str(r),'seed':str(round(time.time()*100))[6:]}
-	
-	if source=='':
-		inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
-	os.mkdir('run'+runId)
-	
-	processedFile=open('run'+runId+'/'+expName+'.inp','w')
-	processedFile.write( source % replacements )
-	processedFile.close()
-	
-	os.system('cd run'+runId+'; rfluka -N0 -M'+str(n)+' '+expName)
-	result=[]
-	for i in range(n):
-		num=str(i+1)
-		while len(num)<3: num='0'+num
-		resultFile=open('run'+runId+'/'+expName+num+'_fort.21','r')
-		for j in range(16):
-			resultFile.readline()
-		result.append(float(resultFile.readline()))
-		resultFile.close()
-	
-	hasDeletedFile = False
-	while hasDeletedFile == False:
-		try:
-			shutil.rmtree('run'+runId)
-			hasDeletedFile = True
-		except OSError:
-			print(runId+': All files not gone, waiting to redelete...')
-			time.sleep(0.5)
-			
-	return result
-
-class getRateThread(threading.Thread):
-	def __init__(self,E,r,LiMass,n,source,runId):
-		self.E=E
-		self.r=r
-		self.LiMass=LiMass
-		self.n=n
-		self.source=source
-		self.runId=runId
-		threading.Thread.__init__(self)
-	def run(self):
-		self.result=getRate(self.E,self.r,self.LiMass,self.n,self.source,self.runId)
-
-def simulate(name='default',n=4,r=[],E=[]):
+def simulate(name='default',n=4,r=[],E=[],rho=0.7217,detector='tld'):
 	inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
 	os.system('mkdir -p results')
 	if E==[]:
@@ -72,16 +28,23 @@ def simulate(name='default',n=4,r=[],E=[]):
 	threads= deque([])
 	for aE in E:
 		for ar in r:
-			threads.append(getRateThread(aE,ar,6,n,source,str(len(threads))))
-			threads.append(getRateThread(aE,ar,7,n,source,str(len(threads))))
+			if detector=='tld':
+				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),LiMass=6,rho=rho))
+				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),LiMass=7,rho=rho))
+			elif detector=='boron10':
+				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),detector=detector,rho=rho))
+			else: raise Exception('Not implemented detector: '+detector)
 	
-	runNum=13;
+	runNum=13;#we have 12 cpu's
 	
 	for i in range(min(runNum,len(threads))):
 		threads[i].start()
 		
 	resultFile=open('results/'+name,'w')
-	resultFile.write('E\tr\trate6\trate7')
+	if detector=='tld':
+		resultFile.write('E\tr\t'+'rate6\trate7')
+	else:
+		resultFile.write('E\tr\t'+'rate')
 	resultFile.close()
 	while len(threads)>0:
 		t=threads.popleft()   
@@ -90,7 +53,7 @@ def simulate(name='default',n=4,r=[],E=[]):
 			threads[runNum-1].start()	
 		
 		resultFile=open('results/'+name,'a')
-		if t.LiMass==6:
+		if detector!='tld' or t.LiMass==6:
 			resultFile.write('\n'+str(t.E)+'\t'+str(t.r))
 		rateCols=''		
 		for col in t.result:

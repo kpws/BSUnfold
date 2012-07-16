@@ -7,7 +7,7 @@ DEFAULTS                                                              PRECISIO
 *
 * beam definitions
 FREE
-BEAM           %(E)s      -0.0       0.0       0.3175       0.3175       1.0 NEUTRON
+BEAM           -%(E)s      -0.0       0.0       0.3175       0.3175       1.0 NEUTRON
 FIXED
 BEAMPOS          0.0       0.0     -100.       0.0       0.0
 *

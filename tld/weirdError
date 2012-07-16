@@ -1,0 +1,21 @@
+======================= Running FLUKA for cycle # 6 =======================
+
+Removing links
+Removing temporary files
+Saving output and random number seed
+Saving additional files generated
+     Moving fort.21 to /afs/cern.ch/user/k/ksatersk/Dropbox/neutronDetectionPetter/radiationCalculations/tld/run/tld006_fort.21
+
+======================= Running FLUKA for cycle # 7 =======================
+/opt/fluka2011.2.12/flutil/rfluka: line 358: 19400 Aborted                 "${EXE}" < "$INPN" 2> "$LOGF" > "$LOGF"
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+  File "simulate.py", line 38, in simulate
+  File "simulate.py", line 19, in getRate
+IOError: [Errno 2] No such file or directory: 'run/tld007_fort.21'
+>>> 
+>>> 
+>>> 
+>>> 
+
+Did someone abort the program?

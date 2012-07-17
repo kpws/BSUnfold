@@ -1,0 +1,16 @@
+
+ *****  FLUKA Course Exercise                                                             *****
+
+           DATE:  7/17/12,  TIME: 19: 6:26
+
+          Total number of particles followed        2000000, for a total weight of  2.0000E+06
+
+1
+   Region    binning n.   1  "neubal    " , generalized particle n.  222
+          1 bins corresponding to the region sets:
+      from region     4 to region     4 in step of     1 regions, or
+      from region     0 to region     0 in step of     1 regions, or
+      from region     0 to region     0 in step of     1 regions
+      Data follow in an array A(ir), format (1(5x,1p,10(1x,e11.4)))
+
+      -1.7448E-03

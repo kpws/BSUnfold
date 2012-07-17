@@ -7,7 +7,17 @@ from collections import deque
 
 expName='sphere'
 
-def getRate(E,r,LiMass,rho=0.94,n=1,source='',runId='',detector='tld'):
+def readRate(runId,runNum,fileNum,row):
+	num=str(runNum+1)
+	while len(num)<3: num='0'+num
+	resultFile=open('run'+runId+'/'+expName+num+'_fort.'+str(fileNum),'r')
+	for j in range(row-1):
+		resultFile.readline()
+	res=float(resultFile.readline())
+	resultFile.close()
+	return res
+
+def getRate(E,r,LiMass,rho=0.96,n=1,source='',runId='',detector='tld'):
 	defines=''
 	if detector=='tld':
 		defines+='#define USE_TLD\n'
@@ -31,17 +41,14 @@ def getRate(E,r,LiMass,rho=0.94,n=1,source='',runId='',detector='tld'):
 	os.system('cd run'+runId+'; rfluka -N0 -M'+str(n)+' '+expName)
 	result=[]
 	for i in range(n):
-		num=str(i+1)
-		while len(num)<3: num='0'+num
-		resultFile=open('run'+runId+'/'+expName+num+'_fort.21','r')
+		result.append([])
 		if detector=='tld':
-			skipRows=16
+			result[-1].append(readRate(runId,i,21,17))
 		elif detector =='boron10':
-			skipRows=15
-		for j in range(skipRows):
-			resultFile.readline()
-		result.append(float(resultFile.readline()))
-		resultFile.close()
+			result[-1].append(readRate(runId,i,21,16))
+			#result[-1].append(readRate(runId,i,22,16))
+			#result[-1].append(readRate(runId,i,23,16))
+			result[-1].append(readRate(runId,i,22,18))
 	
 	hasDeletedFile = False
 	while hasDeletedFile == False:
@@ -55,7 +62,7 @@ def getRate(E,r,LiMass,rho=0.94,n=1,source='',runId='',detector='tld'):
 	return result
 
 class getRateThread(threading.Thread):
-	def __init__(self,E,r,n,source,runId,rho=0.94,LiMass='not used',detector='tld'):
+	def __init__(self,E,r,n,source,runId,rho=0.96,LiMass='not used',detector='tld'):
 		self.E=E
 		self.r=r
 		self.LiMass=LiMass

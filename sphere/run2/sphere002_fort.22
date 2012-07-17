@@ -1,0 +1,18 @@
+
+ *****  FLUKA Course Exercise                                                             *****
+
+           DATE:  7/17/12,  TIME: 19: 6:16
+
+          Total number of particles followed        2000000, for a total weight of  2.0000E+06
+
+1
+
+   Bdrx n.   1  "alpha     " , generalized particle n.   -6, from region n.     4 to region n.     3
+      detector area:  1.0000E+00 cm**2
+      this is a one way only estimator
+      this is a current like estimator
+      linear energy binning from   0.0000E+00 to  1.0000E+04 GeV,     1 bins ( 1.0000E+04 GeV wide)
+      linear angular binning from  0.0000E+00 to  6.2832E+00 sr ,     1 bins ( 6.2832E+00 sr wide )
+      Data follow in a matrix A(ie,ia), format (1(5x,1p,10(1x,e11.4)))
+
+       9.1200E-10

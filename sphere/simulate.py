@@ -8,7 +8,7 @@ from getRate import *
 
 expName='sphere'
 
-def simulate(name='default',n=4,r=[],E=[],rho=0.7217,detector='tld'):
+def simulate(name='default',n=4,r=[],E=[],rho=0.96,detector='tld'):
 	inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
 	os.system('mkdir -p results')
 	if E==[]:
@@ -35,16 +35,16 @@ def simulate(name='default',n=4,r=[],E=[],rho=0.7217,detector='tld'):
 				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),detector=detector,rho=rho))
 			else: raise Exception('Not implemented detector: '+detector)
 	
-	runNum=13;#we have 12 cpu's
+	runNum=10;#we have 12 cpu's
 	
 	for i in range(min(runNum,len(threads))):
 		threads[i].start()
 		
 	resultFile=open('results/'+name,'w')
 	if detector=='tld':
-		resultFile.write('E\tr\t'+'rate6\trate7')
+		resultFile.write('E\tr\tLiMass\tvalue')
 	else:
-		resultFile.write('E\tr\t'+'rate')
+		resultFile.write('E\tr\tscoring\tvalue')
 	resultFile.close()
 	while len(threads)>0:
 		t=threads.popleft()   
@@ -53,12 +53,15 @@ def simulate(name='default',n=4,r=[],E=[],rho=0.7217,detector='tld'):
 			threads[runNum-1].start()	
 		
 		resultFile=open('results/'+name,'a')
-		if detector!='tld' or t.LiMass==6:
-			resultFile.write('\n'+str(t.E)+'\t'+str(t.r))
-		rateCols=''		
-		for col in t.result:
-			rateCols+='\t'+str(col)
-		resultFile.write(rateCols)
+		if detector=='tld':
+			for r in t.result:
+				resultFile.write('\n'+str(t.E)+'\t'+str(t.r)+'\t'+str(t.LiMass)+'\t'+str(r))
+		elif detector=='boron10':
+			for r in t.result:
+				for i in range(len(r)):
+					resultFile.write('\n'+str(t.E)+'\t'+str(t.r)+'\t'+
+						['neubal','alpha'][i]+'\t'+str(r[i]))
+		
 		resultFile.close()
 
 if __name__=="__main__":

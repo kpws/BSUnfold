@@ -4,7 +4,7 @@ TITLE
 FLUKA Course Exercise
 *
 * use names everywhere and free format for geometry
-DEFAULTS                                                              NEW-DEFA
+DEFAULTS                                                              PRECISIO
 *
 * beam definitions
 FREE
@@ -23,9 +23,9 @@ SPH B_VOIDBALL   0.0 0.0 0.0 1000
 #include ../../common/TLDBody.inp
 *$End_expansion
 #else
-XYP    B_PLANE1     -0.030
-XYP    B_PLANE2     -0.020
-RPP    B_TARGET  -1.25   1.25  -1.25   1.25  -10.0   0.030
+XYP    B_PLANE1     -0.0030
+XYP    B_PLANE2     -0.0020
+RPP    B_TARGET  -1.25   1.25  -1.25   1.25  -10.0   0.0030
 #endif
 END
 
@@ -51,19 +51,20 @@ GEOEND
 FREE
 MATERIAL, 1.0, , 6.66, , , , PETH
 MATERIAL, 6.0, , 6.66, , , , PETC
-MATERIAL, 0.0, , %(rho)s, , , , PET
+MATERIAL, 0.0, , %(rho)s, , , , POLYETHY
 LOW-MAT, PETH, 1., -3., 296., , , HYDROGEN
 LOW-MAT, PETC, 6., -3., 296., , , CARBON
-COMPOUND, 2.0, PETH, 1.0, PETC, , , PET
+COMPOUND, 2.0, PETH, 1.0, PETC, , , POLYETHY
 FIXED
-
 
 FREE
 ASSIGNMA    BLCKHOLE   R_BLKHOLE
 ASSIGNMA      VACUUM      R_VOID
 *MAT-PROP, ,%(rho)s, ,POLYETHY, POLYETHY, , ,
-*ASSIGNMA    POLYETHY R_MODERATOR
-ASSIGNMA    PET R_MODERATOR
+
+ASSIGNMA    POLYETHY R_MODERATOR
+*ASSIGNMA    PET R_MODERATOR
+
 #ifdef USE_TLD
 ASSIGNMA        Li%(LiMass)sF     R_TARGET
 #else
@@ -74,7 +75,6 @@ ASSIGNMA, B10, R_CON2
 #endif
 
 FIXED
-
 *******Scoring***********
 #ifdef USE_TLD
 #include ../../common/TLDScoring.inp
@@ -95,5 +95,7 @@ FIXED
 FREE
 RANDOMIZ, 1.0, %(seed)s, , , , , 
 FIXED
-START     2000000.0                                     0.0
+FREE
+START     1000000.0                                     0.0
+FIXED
 STOP

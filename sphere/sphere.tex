@@ -1,0 +1,129 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage{fontenc}
+\usepackage{graphicx}
+
+\newcommand{\nucl}[3]{
+\ensuremath{
+\phantom{\ensuremath{^{#1}_{#2}}}
+\llap{\ensuremath{^{#1}}}
+\llap{\ensuremath{_{\rule{0pt}{.75em}#2}}}
+\mbox{#3}
+}
+}
+
+\title{Fluka Simulations of Bonner Spheres}
+\author{Petter S\"{a}terskog}
+\date{\today}
+
+\begin{document}
+\maketitle
+%\tableofcontents
+\section{Detectors}
+The detectors simulated are moderating spheres of polyethylene with either a TLD or a CR39 placed in the center with the flat face facing the beam.
+\subsection{TLD}
+A TLD is a thermoluminescent dosimeter. We use both TLD600 and TLD700 modeled by plates of $\nucl{6}{}{Li}\nucl{}{}{F}$ and $\nucl{7}{}{Li}\nucl{}{}{F}$ respectively. Their response functions are not known but the response is expected to be similar to the absorbed dose.
+\subsection{CR39}
+A CR39 detector consists of a thin $\nucl{10}{}{B}$ plate in which neutrons are absorbed. This emmits $\nucl{4}{}{He}^{+2}$ and $\nucl{7}{}{Li}^{+3}$ which in turn makes tracks in a CR39 (a type of plastic) film placed near the $\nucl{10}{}{B}$ plate. The number of $\nucl{4}{}{He}^{+2}$ tracks are counted and is the response of the detector.
+\section{A First Simulation}
+The first results did not agree well with what Michele Ferrarini got, Figure \ref{1}. Our curves look like their curves but for bigger radii. It therefore seems as if the material in our simulations has too great moderating power. We did not have full information on the properies of the spheres so the density was varied for maximal agreement, Figure \ref{rho}, \ref{3}. This gave an unphysical density of 0.72 $\mathrm{g/cm}^3$.\\ Simulation of TLD response was also made, Figure \ref{2}, but we do not have anything to compare this with.
+\begin{figure}
+\centering
+\includegraphics[width=12cm]{cr39.pdf}
+\caption
+{CR39 detector response for spheres borrowed from Politecnico di Milano. Solid line is data from Michele Ferrarini obtained using MCNPX. Dashed lines were obtained using FLUKA. Scoring was done on 20x20 mm plate in the middle of the spheres. Thickness 2 mm for FLUKA case. Errorbars are $\pm\sigma$. The \texttt{POLYETHY}-material was used in FLUKA.}\label{1}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=12cm]{tldcr39.pdf}
+\caption
+{Detector responses for spheres borrowed from Politecnico di Milano. Solid line is energy deposited in TLD700 - TLD600 detector in center. Dashed lines were obtained using FLUKA. Scoring was done on 20x20x2 mm plate in the middle of the spheres. Simulations done with FLUKA. Errorbars are $\pm\sigma$. The \texttt{POLYETHY}-material was used in FLUKA.}\label{2}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=12cm]{rho.pdf}
+\caption
+{Ratio of neutron absorbtions at beam energy 0.1 MeV and 0.3 GeV for FLUKA simulation of Bonner spheres. Done with \texttt{COMPOUND} polyethylene material, using \texttt{LOW-MAT} and $\mathrm{CH}_2$-bound hydrogen and varying density $\rho$. Intersections with Michele Ferrarini's MCNPX simulation results found by solving third order spline through FLUKA data points. Errorbars are $\pm\sigma$. }\label{rho}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=12cm]{cr39newRho.pdf}
+\caption
+{CR39 detector response for spheres borrowed from Politecnico di Milano. Solid line is data from Michele Ferrarini obtained using MCNPX. Dashed lines were obtained using FLUKA. Scoring was done on 20x20 mm plate in the middle of the spheres. Thickness 2 mm for FLUKA case. Errorbars are $\pm\sigma$. Done with \texttt{COMPOUND} polyethylene material, using \texttt{LOW-MAT} and $\mathrm{CH}_2$-bound hydrogen and density $\rho=0.72\ \mathrm{g}/\mathrm{cm}^3$}\label{3}
+\end{figure}
+\section{A Second simulation}
+ We later received a more thorough description of the spheres and their simulation parameters. A lot of changes to the simulation was made based on this and also general improvements of the code.
+\begin{itemize}
+ \item Changed neutron converter size from $20\times20\times2$ mm to $25\times25\times0.006$ mm.
+ \item Changed neutron balance scoring to only the first (from beam) 10 $\mathrm{\mu m}$.
+ \item Changed polyethylene density to 0.96 $\mathrm{g/cm}^3$.
+ \item Changed $\nucl{10}{}{B}$ density from 2.34 to 0.84 $\mathrm{g/cm}^3$.
+ \item Added scoring of $\nucl{4}{}{He}^{+2}$ going out from the first (from beam) 10 $\mathrm{\mu m}$ into the moderator.
+ \item Changed from \verb!COMPOUND! polyethylene to FLUKA predefined \verb!POLYETHY! with density changed to 0.96 $\mathrm{g/cm}^3$.
+ \item Changed \verb!DEFAULT! from \verb!NEW-DEFA! to \verb!PRECISIO!.
+\end{itemize}
+\subsection{Expected Changes to the Results}
+\subsubsection{Changing Neutron Converter Dimensions\label{petProp}}
+Some background on neutron behavior in polyethylene is first given here.\\The mean free path for thermal neutrons in polyethylene ($\rho=0.94\mathrm{g/cm}^3$) is 0.37 cm and 2.2 cm for neutrons of 1 MeV \cite[p. 369, Table 12.3]{rinard}. The corresponding cross sections are then 67 b and 11 b. This is precisely the sum of the individual cross sections for hydrogen gas and solid carbon \cite[p. 369, Table 12.3]{rinard}. It is therefore reasonable to approximate the chemical composition unimportant for neutron interactions in polyethylene. The ratio of interactions with H is then 93\% for thermal neutrons and 77\% for neutrons of 1 MeV. The energy loss in elastic collisions is given by
+\begin{equation}
+E_{loss}=\frac{2EA}{(A+1)^2},
+\end{equation}
+where A is the mass of the target. So thermal neutrons lose half of their energy when they collide with hydrogen but only about $4\%$ when they collide with carbon. They thus lose energy quickly in polyethylene. They change direction randomly at each collision and they quickly lose correlation with their initial direction. The neutrons arriving at the detector have lost a lot of their energy, more the bigger the radius is. The neutrons are thermal if the sphere is big enough.\\Monoenergetic neutrons arriving in the center of the detector have a spread in energy at a lower energy. The decrease in energy and spread is increased with increased radius. A bigger detector means being closer to the sphere boundary which has a similar effect as having a smaller radius. This does not have a big effect if the detector is small compared to the sphere but the change in detector size can have an effect for the smallest spheres. The mean distance, $d$, to the boundary of the sphere with radius $r$ from the converter of dimension $s\times s$ is given by
+ \begin{equation}
+d=\frac{1}{s^2}\int_{-\frac{s}{2}}^\frac{s}{2}\int_{-\frac{s}{2}}^\frac{s}{2}\left(r-\sqrt{x_1^2+x_2^2}\right)\mathrm{d}x_1\mathrm{d}x_2
+=r-\left(\sqrt{2}+\log(1+\sqrt{2})\right)\frac{s}{6}.
+\end{equation}
+Table \ref{t1} shows the change in mean distance to the boundary for the different spheres. The last column shows that the second smallest sphere is shifted by 14\% towards the smallest sphere. So the response function could be expected to shift by the same order of magnitude towards the response function of the smallest sphere. This would make our results agree better with Michele Ferrarini's results.\\
+\begin{table}
+\label{t1}
+\caption{Mean distance to sphere boundary for converters before and after changed converter size. All units are in cm.}
+\centering 
+\begin{tabular}{c c c c} 
+\hline\hline 
+Sphere radius & $d_{\mathrm{before}}$ & $d_{\mathrm{after}}$ & $\Delta d_{i}/(d_{i-1,\mathrm{before}}-d_{i,\mathrm{before}})$ \\
+\hline
+4.05&3.28&3.09&\\
+5.4&4.63&4.44&0.14\\
+6.65&5.88&5.69&0.15\\
+8.9&8.13&7.94&0.09\\
+11.65&10.88&10.69&0.07\\
+\hline 
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+The absorption cross section for neutrons in $\nucl{10}{}{B}$ increases when energy is decreased. Thermal neutrons have energy 0.0255 eV (296 K) and the cross section is then $3.5\cdot10^5$ barn \cite[Figure 14.1]{knoll2000radiation}. The $\nucl{10}{}{B}$ density was 0.84 $\mathrm{g/cm}^3$ which gives a nuclei density of $5.1\cdot10^{28}\mathrm{m}^{-3}$. This gives a mean free path for thermal neutrons in the converter of 56 $\mathrm{\mu m}$. The thickness of the converter was reduced from 2 mm to 60 $\mathrm{\mu m}$ so this probably had a large effect. All low energy neutrons going into the converter where earlier absorbed while they now have a large probability of just going through. This will make the response lower, especially for the high energy neutrons.
+
+\subsubsection{Changing Neutron-Balance Scoring Domain}
+The region of scoring the difference in number of neutrons going in and out has been changed from being the whole converter to just the first (from the beam) 10 $\mathrm{\mu m}$ of it. This is a more realistic measure of the detector response because only $\nucl{4}{}{He}^{+2}$ created in this region have a chance of hitting the detector film. This is also the region Michele Ferrarini scored neutron capture in $\nucl{10}{}{B}$.\\
+
+ Neutrons of above thermal energy have a mean free path longer than 56 $\mathrm{\mu m}$ in the converter so the distribution of neutrons should be about the same on both sides of the converter which is 60 $\mathrm{\mu m}$ thick. There was probably a difference with the old converter thickness of 2 mm. There might be a difference if the neutrons thermalize before they reach the converter, this is more likely to happen in the larger spheres. The neutrons from behind the converter are thus a bit shielded. These neutrons are likely more moderated (they have travelled further in the polyethylene). The effect will be that neutrons arriving at the detector are less moderated and our curves shift towards the smaller spheres. This would make our results agree better with Michele Ferrarini's results.
+
+\subsubsection{Changing Densities}
+The neutrons have a relatively low total (both H and C nuclei) interaction cross-section, $\sigma_{tot}(E)$, with the nuclei in the moderator so they travel in straight lines until an elastic scattering occurs. $E$ is the kinetic energy of the neutrons. They then lose some energy and travel in a new direction and the process repeats until they leave the moderator or thermalize and finally decay. The probability $p\mathrm{d}l$ of interaction for a neutron travelling distance $\mathrm{d}l$ is given by
+\begin{equation}
+ p\mathrm{d}l=\sigma(E)\frac{\rho_{mod}}{m_{mod}}\mathrm{d}l
+\end{equation}
+where $\rho_{mod}$ is the density of the moderator, $m_{mod}$ is the mean mass of an atom in the moderator, so $\frac{\rho_{mod}}{m_{mod}}$ is the nuclei density. The length of each leg of the neutron travel is then distributed according to a exponential distribution,
+ \begin{equation}
+ \mathrm{P}\{\hat{L}<\hat{l}\}=F(\hat{l})=1-\exp\left(-\sigma(E)\frac{\rho_{mod}}{m_{mod}}\hat{l} r\right)
+\end{equation}
+where the random variable $\hat{L}$ is distance travelled normalized by the sphere radius $r$.
+Changing $\rho_{mod}$ by a factor $s$ and $r$ by a factor $1/s$ gives
+ \begin{equation}
+ F(\hat{l})=1-\exp\left(-\sigma(E)\frac{s\rho_{mod}}{m_{mod}}\hat{l} r/s\right)=1-\exp\left(-\sigma(E)\frac{\rho_{mod}}{m_{mod}}\hat{l} r\right).
+\end{equation}
+The system is thus invariant under a change of density by a factor $s$ and a change of sphere radius by a factor $1/s$ in the sense that the probability of the particle to arrive in a certain region of the sphere is the same after this transformation if we also scale the size of this region.\\
+
+We changed the density of the polyethylene from 0.94 to 0.96 $\mathrm{g/cm}^3$. This 2\% increase in density is then equivalent to a 2\% inrease in radius and detector size. This will increase the moderation and thus shift our curves to those of larger radii as described in Section \ref{petProp}.\\
+The increase of converter density should by the same argument be very similar to making the converter even thinner and the effects of that are described in Section \ref{petProp} 
+\subsubsection{Changing to \texttt{POLYETHY} Material}
+This change makes FLUKA use a better model of the plastic instead of just having a mix of $\nucl{}{}{C}\nucl{}{}{H}_2$-bound hydrogen and carbon. As described in Section \ref{petProp} is the moderating effect of polyethylene from neutron collisions with the hydrogen nuclei so the chemical composition should not matter a all. The effects of this change should make the result more accurate and might have an effect if physical reactions apart from elastic scatterings of neutrons are involved.
+\subsubsection{Changing to \texttt{PRECISIO} Physics}
+The physics was mistakenly set at \verb!NEW-DEFA! earlier which might not have been as precise. The effects of this change should make the result more accurate.
+\bibliographystyle{unsrt}
+\bibliography{sphere}
+\end{document}

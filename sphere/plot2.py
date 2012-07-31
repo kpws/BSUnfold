@@ -4,7 +4,7 @@ import numpy as np
 import milanoReference
 import string
 
-colors=['b','g','r','c','m']
+colors=['k','b','g','r','c','m']
 lines=['-','--','-.']
 res=result.StatisticResult('milanoB')
 

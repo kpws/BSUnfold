@@ -3,12 +3,13 @@ import time
 import numpy as np
 import threading
 import shutil
+import random
 from collections import deque
 from getRate import *
 
 expName='sphere'
 
-def simulate(name='default',n=4,r=[],E=[],rho=0.96,detector='tld'):
+def simulate(name,n,partNum,r,E,rho,detector):
 	inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
 	os.system('mkdir -p results')
 	if E==[]:
@@ -25,20 +26,22 @@ def simulate(name='default',n=4,r=[],E=[],rho=0.96,detector='tld'):
 			r.append(r[-1]*1.5)
 
 
-	threads= deque([])
+	jobs=[]
 	for aE in E:
 		for ar in r:
 			if detector=='tld':
-				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),LiMass=6,rho=rho))
-				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),LiMass=7,rho=rho))
+				jobs.append(getRateThread(aE,ar,n,partNum,rho,detector,source,str(len(jobs)),LiMass=6))
+				jobs.append(getRateThread(aE,ar,n,partNum,rho,detector,source,str(len(jobs)),LiMass=7))
 			elif detector=='boron10':
-				threads.append(getRateThread(aE,ar,n,source,str(len(threads)),detector=detector,rho=rho))
+				jobs.append(getRateThread(aE,ar,n,partNum,rho,detector,source,str(len(jobs))))
 			else: raise Exception('Not implemented detector: '+detector)
 	
-	runNum=10;#we have 12 cpu's
+	runNum=10;#we have 12 cpu's but want to run only 10 cores
 	
-	for i in range(min(runNum,len(threads))):
-		threads[i].start()
+	runningJobs = []
+	for i in range(min(runNum,len(jobs))):
+		runningJobs.append(jobs.pop(random.randrange(len(jobs))))
+		runningJobs[-1].start()
 		
 	resultFile=open('results/'+name,'w')
 	if detector=='tld':
@@ -46,23 +49,30 @@ def simulate(name='default',n=4,r=[],E=[],rho=0.96,detector='tld'):
 	else:
 		resultFile.write('E\tr\tscoring\tvalue')
 	resultFile.close()
-	while len(threads)>0:
-		t=threads.popleft()   
-		t.join()
-		if len(threads)>=runNum:
-			threads[runNum-1].start()	
-		
-		resultFile=open('results/'+name,'a')
-		if detector=='tld':
-			for r in t.result:
-				resultFile.write('\n'+str(t.E)+'\t'+str(t.r)+'\t'+str(t.LiMass)+'\t'+str(r))
-		elif detector=='boron10':
-			for r in t.result:
-				for i in range(len(r)):
-					resultFile.write('\n'+str(t.E)+'\t'+str(t.r)+'\t'+
-						['neubal','alpha'][i]+'\t'+str(r[i]))
-		
-		resultFile.close()
+	
+	i=0
+	while len(runningJobs)>0:
+		time.sleep(0.05)
+		if not runningJobs[i].isAlive():
+			t=runningJobs.pop(i)
+			
+			if len(jobs)>0:	
+				runningJobs.append(jobs.pop(random.randrange(len(jobs))))
+				runningJobs[-1].start()
+				
+			resultFile=open('results/'+name,'a')
+			if detector=='tld':
+				for r in t.result:
+					for i in range(len(r)):
+						resultFile.write('\n'+str(t.E)+'\t'+str(t.r)+'\t'+str(t.LiMass)+'\t'+str(r[i]))
+			elif detector=='boron10':
+				for r in t.result:
+					for i in range(len(r)):
+						resultFile.write('\n'+str(t.E)+'\t'+str(t.r)+'\t'+
+							['neubal','alpha'][i]+'\t'+str(r[i]))
+			resultFile.close()
+		i+=1
+		if i>=len(runningJobs): i=0
 
 if __name__=="__main__":
 	simulate()

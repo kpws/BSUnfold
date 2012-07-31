@@ -20,7 +20,7 @@ SPH B_MODERATORBALL 0.0 0.0 0.0 %(r)s
 SPH B_VOIDBALL   0.0 0.0 0.0 1000
 #ifdef USE_TLD
 *$Start_expansion 3.0
-#include ../../common/TLDBody.inp
+#include ../common/TLDBody.inp
 *$End_expansion
 #else
 XYP    B_PLANE1     -0.0030
@@ -45,7 +45,7 @@ R_CON2  5 +B_TARGET -B_PLANE2
 
 END
 GEOEND
-#include ../../common/LiF.inp
+#include ../common/LiF.inp
 
 *******Materials***********
 FREE
@@ -62,8 +62,13 @@ ASSIGNMA    BLCKHOLE   R_BLKHOLE
 ASSIGNMA      VACUUM      R_VOID
 *MAT-PROP, ,%(rho)s, ,POLYETHY, POLYETHY, , ,
 
+#ifdef USE_SPHERE
 ASSIGNMA    POLYETHY R_MODERATOR
 *ASSIGNMA    PET R_MODERATOR
+#else
+ASSIGNMA    VACUUM R_MODERATOR
+#endif
+
 
 #ifdef USE_TLD
 ASSIGNMA        Li%(LiMass)sF     R_TARGET
@@ -77,7 +82,7 @@ ASSIGNMA, B10, R_CON2
 FIXED
 *******Scoring***********
 #ifdef USE_TLD
-#include ../../common/TLDScoring.inp
+#include ../common/TLDScoring.inp
 #else
 FREE
 
@@ -96,6 +101,6 @@ FREE
 RANDOMIZ, 1.0, %(seed)s, , , , , 
 FIXED
 FREE
-START     1000000.0                                     0.0
+START     %(parts)s                                     0.0
 FIXED
 STOP

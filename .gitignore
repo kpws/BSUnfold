@@ -5,6 +5,10 @@
 *.swp
 *.backup
 *.aux
+*.toc
+*.idx
+*.bbl
+*.blg 
 
 # Packages
 *.egg

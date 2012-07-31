@@ -1,6 +1,13 @@
 import simulate
 import milanoReference
 
-simulate.simulate(name='milanoB',n=3, r=milanoReference.r,E=milanoReference.E,detector='boron10')
+r=[2.0]+milanoReference.r
+E=milanoReference.E
+rho=0.96
+runs=4
+partNum=1e6
+detectors=['boron10','tld']
 
-#simulate.simulate(name='milano',n=15, r=milanoReference.r,E=milanoReference.E,detector='tld')
+for d in detectors:
+	simulate.simulate('milano'+d,runs,partNum, r,E,rho,d)
+

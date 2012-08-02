@@ -7,8 +7,8 @@ import scipy.interpolate
 
 colors=['k','b','g','r','c','m']
 lines=['-','--','-.']
-res=result.StatisticResult('milanoboron10')
-#res=result.StatisticResult('milanotld')
+res=result.StatisticResult('results/milanoboron10')
+#res=result.StatisticResult('results/milanotld')
 
 E=map(float,res.dims[0])
 r=map(float,res.dims[1])
@@ -17,9 +17,9 @@ pl.subplot(111, xscale="log", yscale="linear")
 i=1
 for j in [0,5]:
 	s=-1
-	rate=[res.mean[k][j][i]*(2*r[j])**2/s for k in range(len(E))]
+	rate=[res.mean[k][j][i]*r[j]**2*np.pi/s for k in range(len(E))]
 
-	std=[res.std[k][j][i]*(2*r[j])**2/abs(s) for k in range(len(E))]
+	std=[res.std[k][j][i]*r[j]**2*np.pi/abs(s) for k in range(len(E))]
 	if r[j]>2.0:
 		l='Bonner sphere' #: '+str(r[j])+' cm'
 	else:

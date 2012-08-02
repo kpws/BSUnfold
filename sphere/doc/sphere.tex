@@ -124,6 +124,15 @@ The increase of converter density should by the same argument be very similar to
 This change makes FLUKA use a better model of the plastic instead of just having a mix of $\nucl{}{}{C}\nucl{}{}{H}_2$-bound hydrogen and carbon. As described in Section \ref{petProp} is the moderating effect of polyethylene from neutron collisions with the hydrogen nuclei so the chemical composition should not matter a all. The effects of this change should make the result more accurate and might have an effect if physical reactions apart from elastic scatterings of neutrons are involved.
 \subsubsection{Changing to \texttt{PRECISIO} Physics}
 The physics was mistakenly set at \verb!NEW-DEFA! earlier which might not have been as precise. The effects of this change should make the result more accurate.
+\subsection{Results}
+\begin{figure}
+\centering
+\includegraphics[width=12cm]{newSim.pdf}
+\caption
+{sdfg}\label{newsim}
+\end{figure}
+\section{A Third Simulation}
+An error in the code was found. The square beam should have had side length $2r$ where $r$ is the ball radius. But the side length was mistakenly $r$. This made the particles hit the sphere with a direction closer to the surface normal than they should have. This does proba
 \bibliographystyle{unsrt}
 \bibliography{sphere}
 \end{document}

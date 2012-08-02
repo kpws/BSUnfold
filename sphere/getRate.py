@@ -6,13 +6,17 @@ import shutil
 from collections import deque
 
 expName='sphere'
-workPath='/home/ksatersk/tmp/'
-#ln -s /afs/cern.ch/user/k/ksatersk/Dropbox/neutronDetectionPetter/radiationCalculations/common/ /home/ksatersk/tmp/common
+workPath=os.path.abspath('tmp/')
+commonPath='/home/ksatersk/tmp/common' #os.path.abspath('../common/')
+# fluka can't fucking handle long paths in includes, no warning whatsover,
+# just crash. Not even mentioned in docs. So uncomment above if your path is 'short',
+# otherwise make a link with shorter path (if you have permissions) and write link path above
+# Impossible to know if this was the actual cause but this solves it so seems very likely.
 
 def readRate(runId,runNum,fileNum,row):
 	num=str(runNum+1)
 	while len(num)<3: num='0'+num
-	resultFile=open(workPath+'run'+runId+'/'+expName+num+'_fort.'+str(fileNum),'r')
+	resultFile=open(workPath+'/run'+runId+'/'+expName+num+'_fort.'+str(fileNum),'r')
 	for j in range(row-1):
 		resultFile.readline()
 	res=float(resultFile.readline())
@@ -31,19 +35,20 @@ def getRate(E,r,LiMass,rho,n,parts,source,runId,detector):
 	'r':str(r),
 	'seed':str(round(time.time()*100))[6:],
 	'rho':str(rho),
-	'parts':str(parts)
+	'parts':str(parts),
+	'common':commonPath
 	}
 	
 	if source=='':
 		inFile=open(expName+'.inp','r');source=inFile.read();inFile.close()
-	os.mkdir(workPath+'run'+runId)
+	os.mkdir(workPath+'/run'+runId)
 	
 	
-	processedFile=open(workPath+'run'+runId+'/'+expName+'.inp','w')
+	processedFile=open(workPath+'/run'+runId+'/'+expName+'.inp','w')
 	processedFile.write( source % replacements )
 	processedFile.close()
 	
-	os.system('cd '+workPath+'run'+runId+'; rfluka -N0 -M'+str(n)+' '+expName)
+	os.system('cd '+workPath+'/run'+runId+'; rfluka -N0 -M'+str(n)+' '+expName)
 	result=[]
 	for i in range(n):
 		result.append([])
@@ -58,7 +63,7 @@ def getRate(E,r,LiMass,rho,n,parts,source,runId,detector):
 	hasDeletedFile = False
 	while hasDeletedFile == False:
 		try:
-			shutil.rmtree(workPath+'run'+runId)
+			shutil.rmtree(workPath+'/run'+runId)
 			hasDeletedFile = True
 		except OSError:
 			print(runId+': All files not gone, waiting to redelete...')
@@ -68,7 +73,7 @@ def getRate(E,r,LiMass,rho,n,parts,source,runId,detector):
 
 class getRateThread(threading.Thread):
 	def __init__(self,E,r,n,parts,rho,detector,source,runId,LiMass='not used'):
-		self.E=E
+		self.E=E #TODO: ugly code, fix
 		self.r=r
 		self.LiMass=LiMass
 		self.rho=rho

@@ -8,7 +8,7 @@ DEFAULTS                                                              PRECISIO
 *
 * beam definitions
 FREE
-BEAM           -%(E)s      -0.0       0.0       %(r)s       %(r)s       1.0 NEUTRON
+BEAM, -%(E)s, -0.0, 0.0, %(r)s, 0.0, 1.0, NEUTRON
 FIXED
 BEAMPOS          0.0       0.0     -100.       0.0       0.0
 *
@@ -19,9 +19,7 @@ GEOBEGIN                                                              COMBNAME
 SPH B_MODERATORBALL 0.0 0.0 0.0 %(r)s
 SPH B_VOIDBALL   0.0 0.0 0.0 1000
 #ifdef USE_TLD
-*$Start_expansion 3.0
-#include ../common/TLDBody.inp
-*$End_expansion
+#include %(common)s/TLDBody.inp
 #else
 XYP    B_PLANE1     -0.0030
 XYP    B_PLANE2     -0.0020
@@ -45,7 +43,10 @@ R_CON2  5 +B_TARGET -B_PLANE2
 
 END
 GEOEND
-#include ../common/LiF.inp
+
+#ifdef USE_TLD
+#include %(common)s/LiF.inp
+#endif
 
 *******Materials***********
 FREE
@@ -82,7 +83,7 @@ ASSIGNMA, B10, R_CON2
 FIXED
 *******Scoring***********
 #ifdef USE_TLD
-#include ../common/TLDScoring.inp
+#include %(common)s/TLDScoring.inp
 #else
 FREE
 

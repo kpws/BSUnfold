@@ -23,7 +23,7 @@ def kdmap(f,d,n):
 		
 class Result(object):
 	def __init__(self, fileName, fill=True, sort=True):
-		reader=csv.reader(open('results/'+fileName, 'rb'), delimiter='\t')
+		reader=csv.reader(open(fileName, 'rb'), delimiter='\t')
 		nbrOfDim=len(reader.next())-1
 		self.dims=[[] for i in range(nbrOfDim)]
 		self.dataList=[]

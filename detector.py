@@ -3,7 +3,7 @@ import numpy as np
 import scipy as sp
 
 #this could have been done a LOT nicer with newer versions of python/python packages installed.
-intSteps=1e3
+intSteps=2e2
 
 class _Detector:
 	def __call__(self,ERange,rateDensity,n=intSteps): #trapezoidal integration, error ~1/N^2
@@ -28,10 +28,10 @@ class _TLD(_Detector):
 		self.E=r.dims[0]
 		self.respData=[[(r.mean[ei][i][l6]-r.mean[ei][i][l7])*np.pi*
 			r.dims[1][i]**2  for ei in range(len(self.E))] for i in range(len(r.dims[1]))]
-		self.resp=[lambda e,r=r:-sp.interp(e,self.E,r) for r in self.respData]#use smarter interpolator in future
+		self.resp=[lambda e,r=r:sp.interp(e,self.E,r) for r in self.respData]#use smarter interpolator in future
 
 #response is tracks per cm^2
 cr39=_CR39()
 
-#respons is GeV/g
+#respons is GeV/g (TLD600 - TLD700)
 tld=_TLD()

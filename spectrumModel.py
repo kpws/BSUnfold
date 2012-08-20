@@ -19,7 +19,7 @@ class SpectrumModel:
 		
 	def getBase(self,i):
 		if True:#self._isLinear:
-			return lambda e, i=i: self([int(i==j) for j in range(self._n)],e)
+			return lambda e, i=i: self([int(i==j) for j in range(self._n)], e)
 		else:
 			raise Exception('Non-linear models do not have base functions.')
 		
@@ -36,7 +36,14 @@ class Flat(SpectrumModel):
 			return params[i]
 		else:
 			return 0.0
-
+	def plot(self, params, errors=None):
+		params=[max(1e-100,p) for p in params]
+		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n+1))
+		pl.plot(reduce(lambda a,b:a+b,[[e,e] for e in E])[1:-1],reduce(lambda a,b:a+b,[[p,p] for p in params]))
+		if errors!=None:
+			for i in range(len(E)-1):
+				pl.errorbar([np.sqrt(E[i]*E[i+1])],[params[i]],yerr=[errors[i]],fmt='k')
+			
 class Linear(SpectrumModel):
 	def __init__(self,ERange,n):
 		self._isLinear=False
@@ -62,9 +69,13 @@ class Linear(SpectrumModel):
 				return 0
 		else:
 			return 0.0
-	def plot(self,params):
+	def plot(self,params,errors=None):
 		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n))
-		pl.plot(E,[self(params, e) for e in E],'-o')
+		if errors==None:
+			pl.plot(E,params,'-o')
+		else:
+			pl.errorbar(E,params,yerr=errors,fmt='-o')
+		
 
 class LinLinear(SpectrumModel):
 	def __init__(self,ERange,n):
@@ -79,9 +90,13 @@ class LinLinear(SpectrumModel):
 			return params[i+1]*(f-i)+params[i]*(1-(f-i))
 		else:
 			return 0.0
-	def plot(self,params):
-		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n))
-		pl.plot(E,[self(params, e) for e in E],'-o')
+	def plot(self,params,errors=None):
+		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),1e3))
+		pl.plot(E,[self(params, e) for e in E])
+		if errors!=None:
+			E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n))
+			pl.errorbar(E,params,yerr=errors)
+		
 			
 #thermal distribution from 0 to 0.0025 eV, then flat
 def flatThermal(End,n):

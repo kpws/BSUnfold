@@ -1,7 +1,6 @@
 import pylab as pl
 import csv
 import numpy as np
-import scipy as sp
 
 #cm
 r1 = 220
@@ -52,9 +51,11 @@ fluenceAll=[sum(fluence[j][i]*V[j] for j in range(len(fluence)))/(2*VRing) for i
 fluenceAllMean=[sum(fluenceMean[j][i]*V[j] for j in range(len(fluence)))/(2*VRing) for i in range(len(fluenceMean[0]))]
 
 def fluence(e):
-	print e
-	return sp.interp(e,E,fluenceAllMean)
-
+	for i in range(len(E[0])):
+		if E[0][i][0] <= e <= E[0][i][1]:
+			return fluenceAll[i]
+	raise Exception('Neutron fluence at energy '+str(e)+' GeV has not been calculated.')
+	
 ERange=(E[0][0][0],E[0][-1][1])
 
 if __name__ == "__main__":

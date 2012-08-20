@@ -54,9 +54,11 @@ def fluence(e):
 	for i in range(len(E[0])):
 		if E[0][i][0] <= e <= E[0][i][1]:
 			return fluenceAll[i]
-	raise Exception('Neutron fluence at energy '+str(e)+' GeV has not been calculated.')
+	return 0.0
+	#raise Exception('Neutron fluence at energy '+str(e)+' GeV has not been calculated.')
 	
-ERange=(E[0][0][0],E[0][-1][1])
+ERange=(  min(E[0][i][0] for i in range(len(E[0])) if fluenceAll[i]!=0.0)  ,
+		  max(E[0][i][1] for i in range(len(E[0])) if fluenceAll[i]!=0.0))
 
 if __name__ == "__main__":
 	pl.hold(True)

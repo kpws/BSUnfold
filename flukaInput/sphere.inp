@@ -11,13 +11,22 @@ FREE
 BEAM, -%(E)s, -0.0, 0.0, %(r)s, 0.0, -1.0, NEUTRON
 FIXED
 BEAMPOS          0.0       0.0     -100.       0.0       0.0
-*
-* Geometry
-* --------
+******************************************************************************************************
+***************************************************Geometry*******************************************
+******************************************************************************************************
 GEOBEGIN                                                              COMBNAME
     0    0             bonner sphere
-SPH B_MODERATORBALL 0.0 0.0 0.0 %(r)s
-SPH B_VOIDBALL   0.0 0.0 0.0 1000
+SPH B_RBALL 0.0 0.0 0.0 %(r)s
+SPH B_VBALL 0.0 0.0 0.0 1000
+#ifdef USE_R1BALL
+SPH B_R1BALL 0.0 0.0 0.0 %(r1)s
+#endif
+#ifdef USE_R2BALL
+SPH B_R2BALL 0.0 0.0 0.0 %(r2)s
+#endif
+#ifdef USE_BUTTONS
+SPH B_BBALL 0.0 0.0 0.0 %(buttonInnerRadius)s
+#endif
 #ifdef USE_TLD
 #include %(includes)s/TLDBody.inp
 #else
@@ -25,21 +34,73 @@ XYP    B_PLANE1     -0.0030
 XYP    B_PLANE2     -0.0020
 RPP    B_TARGET  -1.25   1.25  -1.25   1.25  -10.0   0.0030
 #endif
+#ifdef USE_BUTTONS
+%(cones)s
+#endif
 END
+******************************************************************************************************
+***************************************************Regions********************************************
+******************************************************************************************************
 
-R_BLKHOLE    5 -B_VOIDBALL
-R_VOID       5 +B_VOIDBALL -B_MODERATORBALL
-
+R_BLKHOLE    5 -B_VBALL
+R_VOID   5 +B_VBALL -B_RBALL
 
 #ifdef USE_TLD
+
 R_TARGET     5 +B_TARGET
-R_MODERATOR  5 +B_MODERATORBALL -B_TARGET
+#ifdef USE_R1BALL
+#ifdef USE_BUTTONS
+R_IN_MOD  5 +B_BBALL -B_TARGET | +B_R1BALL -B_BBALL -B_CYL1 
+-B_CYL2 -B_CYL3 -B_CYL4 -B_CYL5 
+-B_CYL6 -B_CYL7 -B_CYL8 -B_CYL9 
+-B_CYL10 -B_CYL11
 #else
-R_MODERATOR  5 +B_MODERATORBALL -(B_TARGET -B_PLANE1)
+R_IN_MOD  5 +B_R1BALL -B_TARGET
+#endif
+#else
+R_IN_MOD  5 +B_RBALL -B_TARGET
+#endif
+
+#else
+
+#ifdef USE_R1BALL
+#ifdef USE_BUTTONS
+R_IN_MOD  5 +B_BBALL -(B_TARGET -B_PLANE1) | +B_R1BALL -B_BBALL 
+-B_CYL1 -B_CYL2 -B_CYL3 -B_CYL4 
+-B_CYL5 -B_CYL6 -B_CYL7 -B_CYL8 
+-B_CYL9 -B_CYL10 -B_CYL11
+#else
+R_IN_MOD  5 +B_R1BALL -(B_TARGET -B_PLANE1)
+#endif
+#else
+R_IN_MOD  5 +B_RBALL -(B_TARGET -B_PLANE1)
+#endif
+
 R_CON1  5 +B_TARGET +B_PLANE2 -B_PLANE1
 R_CON2  5 +B_TARGET -B_PLANE2
 #endif
 
+#ifdef USE_R1BALL
+#ifdef USE_BUTTONS
+R_CYL1  5 +B_R1BALL -B_BBALL +B_CYL1
+R_CYL2  5 +B_R1BALL -B_BBALL +B_CYL2
+R_CYL3  5 +B_R1BALL -B_BBALL +B_CYL3
+R_CYL4  5 +B_R1BALL -B_BBALL +B_CYL4
+R_CYL5  5 +B_R1BALL -B_BBALL +B_CYL5
+R_CYL6  5 +B_R1BALL -B_BBALL +B_CYL6
+R_CYL7  5 +B_R1BALL -B_BBALL +B_CYL7
+R_CYL8  5 +B_R1BALL -B_BBALL +B_CYL8
+R_CYL9  5 +B_R1BALL -B_BBALL +B_CYL9
+R_CYL10  5 +B_R1BALL -B_BBALL +B_CYL10
+R_CYL11  5 +B_R1BALL -B_BBALL +B_CYL11
+#endif
+#ifdef USE_R2BALL
+R_MI_MOD  5 +B_R2BALL -B_R1BALL
+R_OU_MOD  5 +B_RBALL -B_R2BALL
+#else
+R_OU_MOD  5 +B_RBALL -B_R1BALL
+#endif
+#endif
 
 END
 GEOEND
@@ -47,8 +108,9 @@ GEOEND
 #ifdef USE_TLD
 #include %(includes)s/LiF.inp
 #endif
-
-*******Materials***********
+******************************************************************************************************
+***************************************************Materials******************************************
+******************************************************************************************************
 FREE
 MATERIAL, 1.0, , 6.66, , , , PETH
 MATERIAL, 6.0, , 6.66, , , , PETC
@@ -56,20 +118,40 @@ MATERIAL, 0.0, , %(rho)s, , , , POLYETHY
 LOW-MAT, PETH, 1., -3., 296., , , HYDROGEN
 LOW-MAT, PETC, 6., -3., 296., , , CARBON
 COMPOUND, 2.0, PETH, 1.0, PETC, , , POLYETHY
-FIXED
 
-FREE
 ASSIGNMA    BLCKHOLE   R_BLKHOLE
 ASSIGNMA      VACUUM      R_VOID
 *MAT-PROP, ,%(rho)s, ,POLYETHY, POLYETHY, , ,
 
 #ifdef USE_SPHERE
-ASSIGNMA    POLYETHY R_MODERATOR
-*ASSIGNMA    PET R_MODERATOR
+ASSIGNMA    POLYETHY R_IN_MOD
+*ASSIGNMA    PET R_IN_MOD
 #else
-ASSIGNMA    VACUUM R_MODERATOR
+ASSIGNMA    VACUUM R_IN_MOD
 #endif
 
+#ifdef USE_R1BALL
+ASSIGNMA    %(outerMat)s R_OU_MOD
+#endif
+
+#ifdef USE_R2BALL
+ASSIGNMA    %(middleMat)s R_MI_MOD
+#endif
+
+#ifdef USE_BUTTONS
+MATERIAL, 48.0, , 8.65, , , , CADMIUM
+ASSIGNMA    CADMIUM R_CYL1
+ASSIGNMA    CADMIUM R_CYL2
+ASSIGNMA    CADMIUM R_CYL3
+ASSIGNMA    CADMIUM R_CYL4
+ASSIGNMA    CADMIUM R_CYL5
+ASSIGNMA    CADMIUM R_CYL6
+ASSIGNMA    CADMIUM R_CYL7
+ASSIGNMA    CADMIUM R_CYL8
+ASSIGNMA    CADMIUM R_CYL9
+ASSIGNMA    CADMIUM R_CYL10
+ASSIGNMA    CADMIUM R_CYL11
+#endif
 
 #ifdef USE_TLD
 ASSIGNMA        Li%(LiMass)sF     R_TARGET
@@ -81,7 +163,9 @@ ASSIGNMA, B10, R_CON2
 #endif
 
 FIXED
-*******Scoring***********
+******************************************************************************************************
+***************************************************Scoring********************************************
+******************************************************************************************************
 #ifdef USE_TLD
 #include %(includes)s/TLDScoring.inp
 #else
@@ -92,7 +176,7 @@ USRBIN,            2.,    NEU-BALA,       21.,    R_CON1,   ,   , neubal
 USRBIN,        R_CON1,           ,          ,         ,1. , 1.,     1.&
 
 *alpha
-USRBDX, 1.0, 4-HELIUM, 22., R_CON1, R_MODERATOR, 1.0, alpha
+USRBDX, 1.0, 4-HELIUM, 22., R_CON1, R_IN_MOD, 1.0, alpha
 USRBDX, 10000., , 1., , , 1., &
 
 FIXED

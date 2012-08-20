@@ -31,24 +31,62 @@ def readRate(runId,runNum,fileNum,row):
 	resultFile.close()
 	return res
 
-def getRate(E,r,LiMass,rho,n,parts,runId,detector):
+def getMilanoRate(E,name,LiMass,rho,n,parts,runId,detector):
 	defines=''
+	
+	import UserDict
+	class DefaultDict(UserDict.UserDict):
+		default_value = 'not defined'
+		def __getitem__(self, key) :
+			return self.data.get(key, DefaultDict.default_value)
+
+	replacements=DefaultDict()
+	if name=='81+lead':
+		leadThickness=2.0
+		r1=81.0/10/2
+		r=r1+leadThickness
+		defines+='#define USE_R1BALL\n'
+		replacements['r1']=str(r1)
+		replacements['outerMat']='LEAD'
+	elif name=='Linus':
+		leadThickness=0.6
+		r1=5.6
+		r=12.5
+		buttonThickness=0.1
+		buttonRadius=2.5
+		coneBodyCode=''
+		from icosahedron import v
+		for i in range(1,len(v)): #topless
+			coneBodyCode+=('RCC B_CYL'+str(i)+' 0.0 0.0 0.0 '+str(v[i][0]*r)+
+				' '+str(v[i][1]*r)+' '+str(v[i][2]*r)+' '+str(buttonRadius))+'\n'
+		coneBodyCode=coneBodyCode[:-1]
+		defines+='#define USE_R1BALL\n'
+		defines+='#define USE_R2BALL\n'
+		defines+='#define USE_BUTTONS\n'
+		replacements['r1']=str(r1)
+		replacements['r2']=str(r1+leadThickness)
+		replacements['buttonInnerRadius']=str(r1-buttonThickness)
+		replacements['middleMat']='LEAD'
+		replacements['outerMat']='POLYETHY'
+		replacements['cones']=coneBodyCode
+	else:
+		r=float(name)
+
 	if detector=='tld':
 		defines+='#define USE_TLD\n'
 	if r>2.0:
 		defines+='#define USE_SPHERE\n'
-	replacements={'defines':defines,
-	'E':str(E),
-	'LiMass':str(LiMass),
-	'r':str(r),
-	'seed':str(round(time.time()*100))[6:],
-	'rho':str(rho),
-	'parts':str(parts),
-	'includes':includesLinkPath
-	}
-
-	os.mkdir(workPath+'/run'+runId)
+		
+	replacements['E']=str(E)
+	replacements['LiMass']=str(LiMass)
+	replacements['r']=str(r)
+	replacements['seed']=str(round(time.time()*100))[6:]
+	replacements['rho']=str(rho)
+	replacements['parts']=str(parts)
+	replacements['includes']=includesLinkPath
+	replacements['defines']=defines
 	
+	os.mkdir(workPath+'/run'+runId)
 	
 	processedFile=open(workPath+'/run'+runId+'/'+expName+'.inp','w')
 	processedFile.write( source % replacements )
@@ -78,9 +116,9 @@ def getRate(E,r,LiMass,rho,n,parts,runId,detector):
 	return result
 
 class getRateThread(threading.Thread):
-	def __init__(self,E,r,n,parts,rho,detector,runId,LiMass='not used'):
+	def __init__(self,E,name,n,parts,rho,detector,runId,LiMass='not used'):
 		self.E=E #TODO: ugly code, fix
-		self.r=r
+		self.name=name
 		self.LiMass=LiMass
 		self.rho=rho
 		self.n=n
@@ -89,4 +127,4 @@ class getRateThread(threading.Thread):
 		self.detector=detector
 		threading.Thread.__init__(self)
 	def run(self):
-		self.result=getRate(self.E,self.r,self.LiMass,rho=self.rho,n=self.n,parts=self.parts,runId=self.runId,detector=self.detector)
+		self.result=getMilanoRate(self.E,self.name,self.LiMass,self.rho,self.n,self.parts,self.runId,self.detector)

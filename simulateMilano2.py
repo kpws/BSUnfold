@@ -10,15 +10,15 @@ for i in range(len(milanoReference.E)):
 	if i!=len(milanoReference.E)-1:
 		E.append(np.sqrt(milanoReference.E[i]*milanoReference.E[i+1]))
 
-E+=[1.0e-16,1.0e-14,1.0e-13,3.0e-13,1.0e-12,3.0e-12,1.0e-11,3e0,1e1]
+E+=[1.0e-16,1.0e-14,1.0e-13,3.0e-13,1.0e-12,3.0e-12,1.0e-11,3e0,1e1,3e1,1e2]
 rho=0.96
 runs=6
 partNum=2e6
-detectors=['boron10','tld']
-runNum=10 #We have 12 cpus
+detectors=['tld']
+runNum=8 #We have 12 cpus
 
 for d in detectors:
-	simulate.simulate('milano'+d,runNum,runs,partNum, names[-2:],E,rho,d)
+	simulate.simulate('milanoOnlyTld',runNum,runs,partNum, names[-2:],E,rho,d)
 
 #['4.0','81+lead','Linus']
 #for d in detectors:

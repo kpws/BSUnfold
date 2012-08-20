@@ -55,3 +55,16 @@ class StatisticResult(Result):
 		super(StatisticResult, self).__init__(fileName, fill)
 		self.mean=kdmap(lambda s:np.mean(s),self.data,map(len,self.dims))
 		self.std=kdmap(lambda s:np.std(s)/np.sqrt(len(s)),self.data,map(len,self.dims))
+	def project(self,inds):
+		def applyInd(v,inds):
+			if inds==[]:
+				return v
+			elif inds[0]==-1:
+				return [applyInd(iv,inds[1:]) for iv in v]
+			else:
+				return applyInd(v[inds[0]],inds[1:])
+		free=inds.index(-1)
+		projMean=applyInd(self.mean,inds)
+		projStd=applyInd(self.std,inds)
+		return zip(*[[self.dims[free][i],projMean[i],projStd[i]] for i in range(len(projMean)) if str(projMean[i])!='nan'])
+	

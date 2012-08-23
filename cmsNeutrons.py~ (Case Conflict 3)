@@ -49,11 +49,11 @@ for e1 in E:
 	
 fluenceAll=[sum(fluence[j][i]*V[j] for j in range(len(fluence)))/(2*VRing) for i in range(len(fluence[0]))]
 fluenceAllMean=[sum(fluenceMean[j][i]*V[j] for j in range(len(fluence)))/(2*VRing) for i in range(len(fluenceMean[0]))]
-crossSection=73.5e-3*1e15 #fb
+
 def fluence(e):
 	for i in range(len(E[0])):
 		if E[0][i][0] <= e <= E[0][i][1]:
-			return fluenceAll[i]*crossSection
+			return fluenceAll[i]
 	return 0.0
 	#raise Exception('Neutron fluence at energy '+str(e)+' GeV has not been calculated.')
 	
@@ -70,11 +70,9 @@ if __name__ == "__main__":
 	#	pl.loglog([(e[0]+e[1])/2 for e in EMean[i]],fluenceMean[i],label=str(i))
 
 	#pl.loglog([(e[0]+e[1])/2 for e in E[0]],fluenceAll)
-	#pl.loglog([(e[0]+e[1])/2 for e in EMean[0]],fluenceAllMean)
-	
-	pl.loglog([EMean[0][i/2][i%2] for i in range(2*len(fluenceAllMean))], [crossSection*fluenceAllMean[i/2] for i in range(2*len(fluenceAllMean))])
+	pl.loglog([(e[0]+e[1])/2 for e in EMean[0]],fluenceAllMean)
+	#pl.loglog([EMean[0][i/2][i%2] for i in range(2*len(fluenceAllMean))], [fluenceAllMean[i/2] for i in range(2*len(fluenceAllMean))])
 	pl.legend()
-	pl.xlabel('$E$ [GeV]')
-	pl.ylabel('$\phi(E)$ [$(\mathrm{fb}^{-1}\ \mathrm{cm}^{2}\mathrm{GeV})^{-1}$]')
-	pl.grid()
+	pl.xlabel('Energy [GeV]')
+	pl.ylabel('Flux density [$\mathrm{cm}^{-2}\mathrm{GeV}^{-1}$]')
 	pl.show()

@@ -8,23 +8,31 @@ from scipy.optimize import leastsq, fmin_l_bfgs_b, fmin_tnc
 #	bases are tuples of base functions.and their range
 #ret:
 #	it returns a coefficients for the base functions
+def getCond(detector, model):
+	if model.isLinear():
+		M=np.transpose([detector(model.getERange(), model.getBase(i))[0] for i in range(model.getN())])
+		return np.linalg.cond(M)
+	else:
+		assert(False)
 
 def unfold(detector, responses, model, guess=None):
 	errors=responses[1]
 	responses=responses[0]
-	
+	def f(x):
+			return (detector(model.getERange(), model.getFluence(x))[0]-np.array(responses))/errors
+	def jac(x):
+			return [np.array(detector(model.getERange(), lambda e,i=i: model.D(x,i,e))[0])/errors for i in range(model.getN())]
 	if len(responses)<model.getN():
 		raise Exception('Too many base functions, need more detectors.')
+		
 	if errors==None: errors=np.ones(len(responses))
-	if model.isLinear() and False:
+	
+	if model.isLinear() and True:
 		M=np.transpose([detector(model.getERange(), model.getBase(i))[0] for i in range(model.getN())])
-		x, residuals, rank, singVals = np.linalg.lstsq([row for row in M], responses)
+		x, residuals, rank, singVals = np.linalg.lstsq([M[i]/errors[i] for i in range(len(responses))],
+											np.array(responses)/errors)
 	else:
 		if guess==None: guess=np.zeros(model.getN())
-		def f(x):
-			return (detector(model.getERange(), model.getFluence(x))[0]-np.array(responses))/errors
-		def jac(x):
-			return [np.array(detector(model.getERange(), lambda e,i=i: model.D(x,i,e))[0])/errors for i in range(model.getN())]
 		
 		if model.hasD():
 			def sqrErr(x):
@@ -38,9 +46,9 @@ def unfold(detector, responses, model, guess=None):
 			#x,cov_x,infodict,mesg,ier=leastsq(f, guess, Dfun=jac, col_deriv=1, full_output=True)
 			x,f,d=fmin_tnc(sqrErr,guess,fprime=gradS, bounds=[(1e-10,None)]*len(guess),maxfun=1000)
 		else:
-			#x,cov_x,infodict,mesg,ier=leastsq(f, guess, full_output=True)
+			x,cov_x,infodict,mesg,ier=leastsq(f, guess, full_output=True)
 			#x,f,d=fmin_l_bfgs_b(lambda x:sum(fi**2 for fi in f(x)), guess, bounds=[(0,None)]*len(guess),approx_grad=True)
-			x,f,d=fmin_tnc(lambda x:sum(fi**2 for fi in f(x)), guess, bounds=[(1e-10,None)]*len(guess),approx_grad=True,maxfun=1000)
+			#x,f,d=fmin_tnc(lambda x:sum(fi**2 for fi in f(x)), guess, bounds=[(1e-10,None)]*len(guess),approx_grad=True,maxfun=1000)
 
 			
 		#print mesg

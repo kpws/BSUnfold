@@ -18,32 +18,46 @@ class SpectrumModel:
 		return lambda e: self(params, e)
 		
 	def getBase(self,i):
-		if True:#self._isLinear:
+		if self._isLinear:
 			return lambda e, i=i: self([int(i==j) for j in range(self._n)], e)
 		else:
 			raise Exception('Non-linear models do not have base functions.')
 		
 #these models are flat and linear in loglog space.
 class Flat(SpectrumModel):
-	def __init__(self,ERange,n):
-		self._isLinear=True
+	def __init__(self, ERange, n=-1, splitE=None):
 		self._ERange=ERange
-		self._n=n
+		if splitE==None:
+			assert(n!=-1)
+			self._n=n
+			self._splitE=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n+1))[1:-1]
+		else:
+			self._splitE=splitE
+			assert(n==-1)
+			self._n=len(splitE)+1
+		self._isLinear=True
+		
 		self._hasD=False
 	def __call__(self, params, e):
-		i=int(self._n*np.log(e/self._ERange[0])/np.log(self._ERange[1]/self._ERange[0]))
-		if 0<=i<self._n:
-			return params[i]
-		else:
-			return 0.0
+		if e<self._ERange[0] or e>self._ERange[1]: return 0.0
+		i=0
+		while i<self._n-1 and e>self._splitE[i]: i+=1
+		return params[i]
+		
 	def plot(self, params, errors=None):
 		params=[max(1e-100,p) for p in params]
-		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n+1))
-		pl.plot(reduce(lambda a,b:a+b,[[e,e] for e in E])[1:-1],reduce(lambda a,b:a+b,[[p,p] for p in params]))
+		E=np.concatenate(([self._ERange[0]],self._splitE,[self._ERange[1]]))
+		pl.plot(reduce(lambda a,b:a+b,[[e,e] for e in E]),[1e-10]+reduce(lambda a,b:a+b,[[p,p] for p in params])+[1e-10])
 		if errors!=None:
 			for i in range(len(E)-1):
-				pl.errorbar([np.sqrt(E[i]*E[i+1])],[params[i]],yerr=[errors[i]],fmt='k')
-			
+				pl.errorbar([np.sqrt(E[i]*E[i+1])],[params[i]],yerr=[errors[i]],fmt='r')
+				
+	#return matrix condition number where errors are weighted by base upper energy
+	def getCond(self,det):
+		E=np.concatenate(([self._ERange[0]],self._splitE,[self._ERange[1]]))
+		M=np.transpose([np.array(det((E[i],E[i+1]), lambda e:1)[0])/E[i+1] for i in range(self._n)])
+		return np.linalg.cond(M)
+
 class Linear(SpectrumModel):
 	def __init__(self,ERange,n):
 		self._isLinear=False

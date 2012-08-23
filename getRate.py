@@ -21,6 +21,7 @@ inFile.close()
 
 expName='sphere'
 
+
 def readRate(runId,runNum,fileNum,row):
 	num=str(runNum+1)
 	while len(num)<3: num='0'+num

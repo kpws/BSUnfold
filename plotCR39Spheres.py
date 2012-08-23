@@ -12,8 +12,7 @@ pl.subplot(111, xscale="log", yscale="linear")
 
 s=np.mean([sum(i) for i in milanoReference.rate])
 for j in range(len(milanoReference.names)):
-	pl.plot(milanoReference.E,[mr[j]/s for mr in milanoReference.rate],'o',
-		label=(['CR39, MCNPX by M.Ferrarini']+['']*(len(milanoReference.names)-1))[j])
+	pl.plot(milanoReference.E,[mr[j]/s for mr in milanoReference.rate],'o')
 lineI+=1
 for detectorName in ['boron10']:#,'tld']:
 	
@@ -26,7 +25,7 @@ for detectorName in ['boron10']:#,'tld']:
 	detectors=res.dims[2]
 	
 	if detectorName=='boron10':
-		i=detectors.index('neubal')
+		i=detectors.index('alpha')
 	elif detectorName=='tld':
 		i6=detectors.index(6)	
 		i7=detectors.index(7)	
@@ -54,13 +53,15 @@ for detectorName in ['boron10']:#,'tld']:
 		if detectorName=='boron10':
 			pData=res.project([-1,j,i])
 			pl.errorbar(pData[0],np.array(pData[1])*r[j]**2*np.pi/s , yerr=np.array(pData[2])*r[j]**2*np.pi/abs(s), fmt=lines[lineI],
-			label=(['']+[label]+['']*(len(milanoReference.names)))[j],color=colors[j])	
+			label=(['No sphere']+milanoReference.names)[j],color=colors[j])	
 		else: assert(False)
 	lineI+=1
 pl.legend(loc=2)
 pl.ylabel('Normalized response')
 pl.xlabel('Beam energy [GeV]')
 pl.title('Errorbars $\pm\sigma$')
-pl.ylim([0,0.7])
+pl.ylim([0,0.45])
+pl.xlim([1e-13,1e1])
+pl.grid()
 pl.show()
 

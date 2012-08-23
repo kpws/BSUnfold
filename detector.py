@@ -1,9 +1,10 @@
 import result
 import numpy as np
 import scipy as sp
+from beamRadii import beamRadii
 
 #this could have been done a LOT nicer with newer versions of python/python packages installed.
-intSteps=1e2
+intSteps=2e1
 
 class _Detector:
 	def __call__(self,ERange,rateDensity,n=intSteps): #trapezoidal integration, error ~1/N^2
@@ -18,11 +19,11 @@ class _Detector:
 
 class _CR39(_Detector):
 	def __init__(self):
-		r=result.StatisticResult("responses/milanoboron10")
+		r=result.StatisticResult("responses/milanoboron10Total")
 		t=r.dims[2].index('alpha')
 		projs=[r.project([-1,i,t]) for i in range(len(r.dims[1]))]
 		self.respData=[[pi*np.pi*
-			r.dims[1][i]**2/2.5**2  for pi in projs[i][1]] for i in range(0,len(r.dims[1]))]
+			beamRadii[str(r.dims[1][i])]**2/2.5**2  for pi in projs[i][1]] for i in range(0,len(r.dims[1]))]
 		self.E=[[pi for pi in projs[i][0]] for i in range(0,len(r.dims[1]))]
 		self.resp=[lambda e,i=i: sp.interp(e,self.E[i],self.respData[i]) for i in range(len(self.respData))]#use smarter interpolator in future
 		self.errors=[lambda r:r*0.1]*len(self.resp)#10% error (standard deviation)

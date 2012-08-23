@@ -1,4 +1,4 @@
-radiationCalculations
+BSUnfold
 =====================
 
-Neutron spectrum measurement using Bonner spheres, for the CMS cavern at CERN. Python, numpy, scipy, python-matplotlib and fluka is needed to run this.
+Unfolding code for neutron spectrum measurement using Bonner spheres, for the CMS cavern at CERN. Python, numpy, scipy, python-matplotlib and fluka is needed to run this.

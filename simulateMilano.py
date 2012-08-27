@@ -23,4 +23,4 @@ detectors=['tld'] #['boron10','tld']
 runNum=10 #We have 12 cpus
 
 for d in detectors:
-	simulate.simulate('milano'+d,runNum,runs,partNum, names[-2:],E,rho,d)
+	simulate.simulate('milano'+d,runNum,runs,partNum, names,E,rho,d)

@@ -4,7 +4,7 @@ import scipy as sp
 from beamRadii import beamRadii
 
 #this could have been done a LOT nicer with newer versions of python/python packages installed.
-intSteps=2e1
+intSteps=5e1
 
 class _Detector:
 	def __call__(self,ERange,rateDensity,n=intSteps): #trapezoidal integration, error ~1/N^2
@@ -30,7 +30,7 @@ class _CR39(_Detector):
 	
 class _TLD(_Detector):
 	def __init__(self):
-		r=result.StatisticResult("responses/milanotld")
+		r=result.StatisticResult("responses/milanotldTotal")
 		l6=r.dims[2].index(6)
 		l7=r.dims[2].index(7)
 		self.E=r.dims[0]

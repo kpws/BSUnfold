@@ -1,9 +1,10 @@
+import numpy as np
+
 import unfold
 import detector
 from spectrumModel import Flat, Linear
 import testSpectrum
 import CMSNeutrons
-import numpy as np
 import milanoReference
 import optimizeFlat
 
@@ -20,6 +21,7 @@ det=detector.cr39
 #resp=calculated responses, replace this with actuall responses like this:
 #resp=[no sphere resp, sphere 1 resp, ..., 81=lead response, Linus response]
 resp=det(*spectrum)
+
 print('Expected detector responses:')
 for i in range(len(resp[0])):
 	print((['No sphere']+milanoReference.names)[i]+' & %.1f'%resp[0][i]+' \\\\')
@@ -43,7 +45,7 @@ errorEstimate=False
 if errorEstimate:
 	guess=[]
 	x=[]
-	for i in range(4):
+	for i in range(7):
 		r=(np.array(resp[0])+[np.random.normal()*ri for ri in resp[1]],resp[1])
 		guess.append([max(0,p) for p in unfold.unfold(det, r, modelForGuess)])
 		x.append(unfold.unfold(det, r, model, guess=np.array(guess[-1])))
@@ -54,7 +56,7 @@ if errorEstimate:
 	x=np.mean(x,axis=0)
 else:
 	guess=unfold.unfold(det, resp, modelForGuess)
-	x=unfold.unfold(det, resp, model, guess=guess*2)
+	x=unfold.unfold(det, resp, model, guess=guess)
 	guessErrors=[0]*len(guess)
 	errors=[0]*len(x)
 
@@ -64,7 +66,7 @@ for xp in x:
 	
 #print responses in latex table friendly way
 respx=det(model.getERange(), model.getFluence(x))
-respguess=det(modelForGuess.getERange(), modelForGuess.getFluence(x))
+respguess=det(modelForGuess.getERange(), modelForGuess.getFluence(guess))
 print('Expected detector responses with calculated spectrum:')
 for i in range(len(respx[0])):
 	print((['No sphere']+milanoReference.names)[i]+' & %.1f'%resp[0][i]+' & %.1f'%respguess[0][i]+' & %.1f'%respx[0][i]+' \\\\')

@@ -16,15 +16,15 @@ spectrum=(CMSNeutrons.ERange, CMSNeutrons.fluence)
 
 #what detector is used, can be detector.cr39, detector.tld or detector.tldCr39
 #do not uncomment this when results are availible
-det=detector.cr39
+det=detector.tld
 
 #resp=calculated responses, replace this with actuall responses like this:
 #resp=[no sphere resp, sphere 1 resp, ..., 81=lead response, Linus response]
 resp=det(*spectrum)
 
 print('Expected detector responses:')
-for i in range(len(resp[0])):
-	print((['No sphere']+milanoReference.names)[i]+' & %.1f'%resp[0][i]+' \\\\')
+#for i in range(len(resp[0])):
+#	print((['No sphere']+milanoReference.names)[i]+' & %.1f'%resp[0][i]+' \\\\')
 	
 #########################################Do unfolding################################	
 #number of parameters in model
@@ -68,8 +68,8 @@ for xp in x:
 respx=det(model.getERange(), model.getFluence(x))
 respguess=det(modelForGuess.getERange(), modelForGuess.getFluence(guess))
 print('Expected detector responses with calculated spectrum:')
-for i in range(len(respx[0])):
-	print((['No sphere']+milanoReference.names)[i]+' & %.1f'%resp[0][i]+' & %.1f'%respguess[0][i]+' & %.1f'%respx[0][i]+' \\\\')
+#for i in range(len(respx[0])):
+#	print((['No sphere']+milanoReference.names)[i]+' & %.1f'%resp[0][i]+' & %.1f'%respguess[0][i]+' & %.1f'%respx[0][i]+' \\\\')
 	
 
 #plot stuff!!!

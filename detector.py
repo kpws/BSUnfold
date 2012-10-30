@@ -4,7 +4,7 @@ import scipy as sp
 from beamRadii import beamRadii
 
 #this could have been done a LOT nicer with newer versions of python/python packages installed.
-intSteps=1e2
+intSteps=2e2
 
 class _Detector:
     def __call__(self,ERange,rateDensity,n=intSteps): #trapezoidal integration, error ~1/N^2
@@ -20,6 +20,7 @@ class _Detector:
 class _CR39(_Detector):
     def __init__(self):
         r=result.StatisticResult("responses/milanoboron10Total")
+        self.order=r.dims[1]
         t=r.dims[2].index('alpha')
         projs=[r.project([-1,i,t]) for i in range(len(r.dims[1]))]
         self.respData=[[pi*np.pi*
@@ -28,10 +29,11 @@ class _CR39(_Detector):
         self.ERange=(max(e[0] for e in self.E),min(e[-1] for e in self.E))
         self.resp=[lambda e,i=i: sp.interp(e,self.E[i],self.respData[i]) for i in range(len(self.respData))]#use smarter interpolator in future
         self.errors=[lambda r:r*0.1]*len(self.resp)#10% error (standard deviation)
-    
+
 class _TLD(_Detector):
     def __init__(self):
         r=result.StatisticResult("responses/milanotldTotal")
+        self.order=r.dims[1]
         l6=r.dims[2].index(6)
         l7=r.dims[2].index(7)
         projs6=[r.project([-1,i,l6]) for i in range(len(r.dims[1]))]
@@ -44,6 +46,26 @@ class _TLD(_Detector):
         self.respData7=[[pi*np.pi*
             beamRadii[str(r.dims[1][i])]**2 for pi in projs7[i][1]] for i in range(0,len(r.dims[1]))]
         self.resp=[lambda e,i=i: sp.interp(e,self.E6[i],self.respData6[i])-sp.interp(e,self.E7[i],self.respData7[i]) for i in range(len(self.respData6))]#use smarter interpolator in future
+        self.errors=[lambda r:r*0.1]*len(self.resp)#10% error (standard deviation)
+    
+class _TLDLimited(_Detector): #This detector lacks the 81+Lead and 2.0 measurements due to experimental failures of these
+    def __init__(self):
+        r=result.StatisticResult("responses/milanotldTotal")
+        self.order=r.dims[1]
+        self.order.remove(2.)
+        self.order.remove('81+lead')
+        l6=r.dims[2].index(6)
+        l7=r.dims[2].index(7)
+        projs6=[r.project([-1,i,l6]) for i in range(len(r.dims[1]))]
+        projs7=[r.project([-1,i,l7]) for i in range(len(r.dims[1]))]
+        self.E6=[[pi for pi in projs6[i][0]] for i in range(0,len(r.dims[1]))]
+        self.E7=[[pi for pi in projs7[i][0]] for i in range(0,len(r.dims[1]))]
+        self.ERange=(max(e[0] for e in self.E6+self.E7),min(e[-1] for e in self.E6+self.E7))
+        self.respData6=[[pi*np.pi*
+            beamRadii[str(r.dims[1][i])]**2 for pi in projs6[i][1]] for i in range(0,len(r.dims[1]))]
+        self.respData7=[[pi*np.pi*
+            beamRadii[str(r.dims[1][i])]**2 for pi in projs7[i][1]] for i in range(0,len(r.dims[1]))]
+        self.resp=[lambda e,i=i: sp.interp(e,self.E6[i],self.respData6[i])-sp.interp(e,self.E7[i],self.respData7[i]) for i in range(len(self.respData6)) if r.dims[1][i] in self.order]#use smarter interpolator in future
         self.errors=[lambda r:r*0.1]*len(self.resp)#10% error (standard deviation)
         
 class _Both(_Detector):
@@ -58,5 +80,7 @@ cr39=_CR39()
 #respons is GeV/g (TLD600 - TLD700)
 tld=_TLD()
 
-tldCr39=_Both(cr39, tld)
+#respons is GeV/g (TLD600 - TLD700)
+tldLimited=_TLDLimited()
 
+tldCr39=_Both(cr39, tld)

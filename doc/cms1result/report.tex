@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{ae}
+\usepackage{url}
+\usepackage{graphicx}
+%\usepackage[pdftex]{graphicx,color}
+%\DeclareGraphicsRule{.pdftex}{pdf}{*}{}
+\usepackage{color}
+\usepackage{pbox}
+%\usepackage{bbm}
+%\usepackage[swedish]{babel}
+\newcommand{\N}{\ensuremath{\mathbbm{N}}}
+\newcommand{\Z}{\ensuremath{\mathbbm{Z}}}
+\newcommand{\Q}{\ensuremath{\mathbbm{Q}}}
+\newcommand{\R}{\ensuremath{\mathbbm{R}}}
+\newcommand{\C}{\ensuremath{\mathbbm{C}}}
+\newcommand{\rd}{\ensuremath{\mathrm{d}}}
+\newcommand{\id}{\ensuremath{\,\rd}}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand{\braket}[2]{\bra{#1}#2\rangle}
+\newcommand{\bracket}[3]{\bra{#1}#2\ket{#3}}
+\newcommand{\ddn}[3]{\frac{\mathrm{d}^#1 #2}{\mathrm{d}#3^#1}}
+\newcommand{\dd}[2]{\frac{\mathrm{d} #1}{\mathrm{d}#2}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\q}{\mathbf{q}}
+\usepackage{tikz}
+
+\author{Petter Säterskog}
+\title{Results of Initial Unfolding of Bonner Sphere Measurement of Neutrons in CMS-UXC.}
+\begin{document}
+\maketitle
+The results from the measurements came as numbers for each detector on each chip. The response $r$ has been calculated by taking the difference of the mean of the TLD600 and the TLD700 values.
+\begin{eqnarray}
+ r_6&=&\frac{r_\mathrm{TLD600,1}+r_\mathrm{TLD600,2}}{2}\\
+ r_7&=&\frac{r_\mathrm{TLD700,1}+r_\mathrm{TLD700,2}}{2}\\
+ r&=&r_6-r_7
+\end{eqnarray}
+The standard error on $r$, $\sigma$, has been estimated by
+\begin{eqnarray}
+ \sigma_1&=&\sqrt{(r_\mathrm{TLD600,1}-r_6)^2+(r_\mathrm{TLD600,2}-r_6)^2}/\sqrt{2}\\
+\sigma_2&=&\sqrt{(r_\mathrm{TLD700,1}-r_7)^2+(r_\mathrm{TLD700,2}-r_7)^2}/\sqrt{2}\\
+\sigma&=&\sqrt{\sigma_1^2+\sigma_2^2}
+\end{eqnarray}
+All these values were scaled by a factor to obtain the same mean of the expected and measured responses. This was done because no calibration data was available. The result is seen in Table \ref{results}.
+\begin{table}
+\centering
+\begin{tabular}{ccc}
+\hline
+\hline
+Detector&Expected response&Measured response\\
+\hline
+4.05 & $1.89\pm0.189\cdot 10^5$ &$ 1.52\pm 0.0521\cdot 10^5$ \\
+5.4 & $2.17\pm0.217\cdot 10^5$ &$ 1.86\pm 0.107\cdot 10^5$ \\
+6.65 & $2.03\pm0.203\cdot 10^5$ &$ 2.48\pm 0.154\cdot 10^5$ \\
+8.9 & $2.3\pm0.23\cdot 10^5$ &$ 1.94\pm 0.0509\cdot 10^5$ \\
+11.65 & $1.75\pm0.175\cdot 10^5$ &$ 2.15\pm 0.0558\cdot 10^5$ \\
+Linus & $0.835\pm0.0835\cdot 10^5$ &$ 1.02\pm 0.16\cdot 10^5$ \\
+\hline
+\hline
+\end{tabular}
+\caption{\label{results} Expected and measured results. The expected values are obtained by using a FLUKA simulation of the neutron field in CMS-UXC, this spectrum is seen in Fig. \ref{milk1}. The error was for the expected values assumed to be 10\%}
+\end{table}
+A new detector class was created that is called TLDLimited. This does not use detector 81+Lead and the detectors without moderator. No result was obtained from the 81+lead detector. The detectors without moderators gave very different results, the highest for TLD600 being 8309 and the lowest 1988. The neutron field for low energy neutrons is thus very varying around the setup, likely because of the spheres. Hopefully this variation is only present for the low energetic neutrons. These detectors were also not used. Too few detectors were then available to use 5 base functions or the power-function model so the unfolding procedure has been done using the flat model and 4 base functions. The result is seen in Fig. \ref{milk1} and Table \ref{blood}.
+\begin{figure}
+\includegraphics[scale=0.7]{../../unfoldCMS1.pdf}
+\caption{\label{milk1} Spectrum obtained by unfolding. Both using measured and expected responses. Error-bars are obtained by doing the unfolding procedure multiple times with responses normal-distributed (with their respective $\sigma$) around their expected/measured values. The spectrum for calculated the expected responses is also shown.}
+\end{figure}
+\begin{table}
+\centering
+\begin{tabular}{ccc}
+\hline
+\hline
+Base&Expected [$(\mathrm{fb}^{-1}\ \mathrm{cm}^{2}\mathrm{GeV})^{-1}$]&Measured [$(\mathrm{fb}^{-1}\ \mathrm{cm}^{2}\mathrm{GeV})^{-1}$]\\
+\hline
+1 & $1.54e+17\pm1.73e+16$ &$ 1.28e+17\pm 5.04e+15$ \\
+2 & $9.13e+13\pm3.1e+13$ &$ 9.09e+13\pm 1.56e+13$ \\
+3 & $7.46e+10\pm2.28e+10$ &$ 3.24e+10\pm 1.18e+10$ \\
+4 & $2.49e+08\pm1.95e+08$ &$ 1.18e+09\pm 1.4e+08$ \\
+\hline
+\hline
+\end{tabular}
+\caption{\label{blood} Heights of the base functions. ``Expected'' are obtained using the expected responses and ``Measured'' are obtained using the measured responses.}
+\end{table}
+Note the discrepancy of the last base functions. Not really significant with regard to the errors but nevertheless interesting. It could either mean a lower amount of low energetic neutrons or a higher amount of high energetic neutrons due to the lack of calibration. The latter is more likely because of the agreement of the first two bases with very small errors. This could also be an effect of shadowing by CR39 or that the spheres are too close.
+\end{document}

@@ -44,10 +44,10 @@ class Flat(SpectrumModel):
 		while i<self._n-1 and e>self._splitE[i]: i+=1
 		return params[i]
 		
-	def plot(self, params, errors=None):
+	def plot(self, params, errors=None,label=''):
 		params=[max(1e-100,p) for p in params]
 		E=np.concatenate(([self._ERange[0]],self._splitE,[self._ERange[1]]))
-		pl.plot(reduce(lambda a,b:a+b,[[e,e] for e in E]),[1e-10]+reduce(lambda a,b:a+b,[[p,p] for p in params])+[1e-10])
+		pl.plot(reduce(lambda a,b:a+b,[[e,e] for e in E]),[1e-10]+reduce(lambda a,b:a+b,[[p,p] for p in params])+[1e-10],label=label)
 		if errors!=None:
 			for i in range(len(E)-1):
 				pl.errorbar([np.sqrt(E[i]*E[i+1])],[params[i]],yerr=[errors[i]],fmt='r')
@@ -83,12 +83,12 @@ class Linear(SpectrumModel):
 				return 0
 		else:
 			return 0.0
-	def plot(self,params,errors=None):
+	def plot(self,params,errors=None,label=''):
 		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n))
 		if errors==None:
-			pl.plot(E,params,'-o')
+			pl.plot(E,params,fmt='-o',label=label)
 		else:
-			pl.errorbar(E,params,yerr=errors,fmt='-o')
+			pl.errorbar(E,params,yerr=errors,fmt='-o',label=label)
 		
 
 class LinLinear(SpectrumModel):
@@ -104,12 +104,12 @@ class LinLinear(SpectrumModel):
 			return params[i+1]*(f-i)+params[i]*(1-(f-i))
 		else:
 			return 0.0
-	def plot(self,params,errors=None):
+	def plot(self,params,errors=None,label=''):
 		E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),1e3))
-		pl.plot(E,[self(params, e) for e in E])
+		pl.plot(E,[self(params, e) for e in E],label=label)
 		if errors!=None:
 			E=np.exp(np.linspace(np.log(self._ERange[0]),np.log(self._ERange[1]),self._n))
-			pl.errorbar(E,params,yerr=errors)
+			pl.errorbar(E,params,yerr=errors,label=label)
 		
 			
 #thermal distribution from 0 to 0.0025 eV, then flat
